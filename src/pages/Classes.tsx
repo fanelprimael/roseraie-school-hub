@@ -5,18 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { School, Users, Plus, Edit } from "lucide-react";
 
 const Classes = () => {
-  // Mock data - à remplacer par de vraies données
-  const classes = [
-    { id: 1, nom: "Petite Section", niveau: "Maternelle", effectif: 20, enseignant: "Mme KONE" },
-    { id: 2, nom: "Moyenne Section", niveau: "Maternelle", effectif: 18, enseignant: "Mme TRAORE" },
-    { id: 3, nom: "Grande Section", niveau: "Maternelle", effectif: 22, enseignant: "M. DIALLO" },
-    { id: 4, nom: "CP1", niveau: "Primaire", effectif: 25, enseignant: "Mme KOUAME" },
-    { id: 5, nom: "CP2", niveau: "Primaire", effectif: 24, enseignant: "M. SANOGO" },
-    { id: 6, nom: "CE1", niveau: "Primaire", effectif: 26, enseignant: "Mme OUATTARA" },
-    { id: 7, nom: "CE2", niveau: "Primaire", effectif: 23, enseignant: "M. BAMBA" },
-    { id: 8, nom: "CM1", niveau: "Primaire", effectif: 28, enseignant: "Mme DIABATE" },
-    { id: 9, nom: "CM2", niveau: "Primaire", effectif: 27, enseignant: "M. KOFFI" },
-  ];
+  // Données de classes - à connecter à la base de données
+  const classes = [];
 
   const totalEleves = classes.reduce((sum, classe) => sum + classe.effectif, 0);
 
@@ -84,41 +74,48 @@ const Classes = () => {
 
         {/* Classes Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {classes.map((classe) => (
-            <Card key={classe.id} className="shadow-soft hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{classe.nom}</CardTitle>
-                  <Badge variant="outline" className="text-xs">
-                    {classe.niveau}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    <strong>{classe.effectif}</strong> élèves
-                  </span>
-                </div>
-                
-                <div className="text-sm text-muted-foreground">
-                  <strong>Enseignant:</strong> {classe.enseignant}
-                </div>
+          {classes.length > 0 ? (
+            classes.map((classe) => (
+              <Card key={classe.id} className="shadow-soft hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{classe.nom}</CardTitle>
+                    <Badge variant="outline" className="text-xs">
+                      {classe.niveau}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <strong>{classe.effectif}</strong> élèves
+                    </span>
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <strong>Enseignant:</strong> {classe.enseignant}
+                  </div>
 
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifier
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Users className="mr-2 h-4 w-4" />
-                    Élèves
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Modifier
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Users className="mr-2 h-4 w-4" />
+                      Élèves
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              <School className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Aucune classe créée</p>
+            </div>
+          )}
         </div>
       </div>
     </Layout>

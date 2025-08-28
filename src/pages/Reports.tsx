@@ -16,31 +16,12 @@ import {
 } from "lucide-react";
 
 const Reports = () => {
-  // Mock data - à remplacer par de vraies données
-  const effectifsParClasse = [
-    { classe: "Petite Section", garcons: 12, filles: 8, total: 20 },
-    { classe: "Moyenne Section", garcons: 9, filles: 9, total: 18 },
-    { classe: "Grande Section", garcons: 11, filles: 11, total: 22 },
-    { classe: "CP1", garcons: 13, filles: 12, total: 25 },
-    { classe: "CP2", garcons: 12, filles: 12, total: 24 },
-    { classe: "CE1", garcons: 14, filles: 12, total: 26 },
-    { classe: "CE2", garcons: 12, filles: 11, total: 23 },
-    { classe: "CM1", garcons: 15, filles: 13, total: 28 },
-    { classe: "CM2", garcons: 14, filles: 13, total: 27 },
-  ];
-
-  const totalEleves = effectifsParClasse.reduce((sum, classe) => sum + classe.total, 0);
-  const totalGarcons = effectifsParClasse.reduce((sum, classe) => sum + classe.garcons, 0);
-  const totalFilles = effectifsParClasse.reduce((sum, classe) => sum + classe.filles, 0);
-
-  const statistiquesReussite = [
-    { classe: "CP1", moyenne: 14.2, taux_reussite: 85 },
-    { classe: "CP2", moyenne: 13.8, taux_reussite: 78 },
-    { classe: "CE1", moyenne: 15.1, taux_reussite: 92 },
-    { classe: "CE2", moyenne: 14.5, taux_reussite: 87 },
-    { classe: "CM1", moyenne: 13.9, taux_reussite: 81 },
-    { classe: "CM2", moyenne: 15.3, taux_reussite: 94 },
-  ];
+  // Données de rapports - à connecter à la base de données
+  const effectifsParClasse = [];
+  const totalEleves = 0;
+  const totalGarcons = 0;
+  const totalFilles = 0;
+  const statistiquesReussite = [];
 
   return (
     <Layout>
@@ -88,7 +69,7 @@ const Reports = () => {
                   <School className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{effectifsParClasse.length}</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-sm text-muted-foreground">Classes</p>
                 </div>
               </div>
@@ -102,7 +83,7 @@ const Reports = () => {
                   <TrendingUp className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">87%</p>
+                  <p className="text-2xl font-bold text-foreground">0%</p>
                   <p className="text-sm text-muted-foreground">Taux de réussite</p>
                 </div>
               </div>
@@ -116,7 +97,7 @@ const Reports = () => {
                   <BarChart3 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">14.5</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-sm text-muted-foreground">Moyenne générale</p>
                 </div>
               </div>
@@ -142,20 +123,26 @@ const Reports = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {effectifsParClasse.map((classe, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <div>
-                          <p className="font-medium">{classe.classe}</p>
-                          <div className="flex gap-4 text-sm text-muted-foreground">
-                            <span>♂ {classe.garcons}</span>
-                            <span>♀ {classe.filles}</span>
+                    {effectifsParClasse.length > 0 ? (
+                      effectifsParClasse.map((classe, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                          <div>
+                            <p className="font-medium">{classe.classe}</p>
+                            <div className="flex gap-4 text-sm text-muted-foreground">
+                              <span>♂ {classe.garcons}</span>
+                              <span>♀ {classe.filles}</span>
+                            </div>
                           </div>
+                          <Badge variant="outline" className="text-lg px-3 py-1">
+                            {classe.total}
+                          </Badge>
                         </div>
-                        <Badge variant="outline" className="text-lg px-3 py-1">
-                          {classe.total}
-                        </Badge>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p>Aucune classe enregistrée</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -210,27 +197,33 @@ const Reports = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {statistiquesReussite.map((stat, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-                      <div className="flex-1">
-                        <p className="font-medium">{stat.classe}</p>
-                        <div className="flex items-center gap-4 mt-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">Moyenne:</span>
-                            <Badge variant="outline" className="text-primary">
-                              {stat.moyenne}/20
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">Réussite:</span>
-                            <Badge variant={stat.taux_reussite >= 90 ? "secondary" : stat.taux_reussite >= 80 ? "default" : "outline"}>
-                              {stat.taux_reussite}%
-                            </Badge>
+                  {statistiquesReussite.length > 0 ? (
+                    statistiquesReussite.map((stat, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex-1">
+                          <p className="font-medium">{stat.classe}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">Moyenne:</span>
+                              <Badge variant="outline" className="text-primary">
+                                {stat.moyenne}/20
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">Réussite:</span>
+                              <Badge variant={stat.taux_reussite >= 90 ? "secondary" : stat.taux_reussite >= 80 ? "default" : "outline"}>
+                                {stat.taux_reussite}%
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>Aucune statistique de réussite disponible</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -245,14 +238,14 @@ const Reports = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="p-4 rounded-lg bg-secondary/10">
                     <h4 className="font-medium text-secondary">Recettes Totales</h4>
-                    <p className="text-2xl font-bold text-secondary">1,250,000 FCFA</p>
+                    <p className="text-2xl font-bold text-secondary">0 FCFA</p>
                     <p className="text-sm text-muted-foreground">Ce mois</p>
                   </div>
                   
                   <div className="p-4 rounded-lg bg-destructive/10">
                     <h4 className="font-medium text-destructive">Impayés</h4>
-                    <p className="text-2xl font-bold text-destructive">130,000 FCFA</p>
-                    <p className="text-sm text-muted-foreground">15 élèves concernés</p>
+                    <p className="text-2xl font-bold text-destructive">0 FCFA</p>
+                    <p className="text-sm text-muted-foreground">0 élèves concernés</p>
                   </div>
                 </div>
               </CardContent>

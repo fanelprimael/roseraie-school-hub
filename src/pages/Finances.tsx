@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { CreditCard, Plus, Search, Download, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
 
 const Finances = () => {
-  // Mock data - à remplacer par de vraies données
+  // Données financières - à connecter à la base de données
   const typesPaiements = [
     "Frais de scolarité 1",
     "Frais de scolarité 2", 
@@ -20,45 +20,12 @@ const Finances = () => {
     "Activité"
   ];
 
-  const paiements = [
-    { 
-      id: 1, 
-      eleve: "KOUAME Marie", 
-      classe: "CP1", 
-      type: "Frais de scolarité 1", 
-      montant: 50000, 
-      date: "2024-01-15", 
-      statut: "Payé" 
-    },
-    { 
-      id: 2, 
-      eleve: "DIALLO Jean", 
-      classe: "CE1", 
-      type: "Cantine", 
-      montant: 25000, 
-      date: "2024-01-14", 
-      statut: "Payé" 
-    },
-    { 
-      id: 3, 
-      eleve: "TRAORE Aminata", 
-      classe: "CM2", 
-      type: "Uniforme", 
-      montant: 15000, 
-      date: "2024-01-10", 
-      statut: "En attente" 
-    },
-  ];
+  const paiements = [];
+  const retards = [];
 
-  const retards = [
-    { eleve: "KONE Ibrahim", classe: "CP2", montant: 45000, jours: 15 },
-    { eleve: "BAMBA Fatoumata", classe: "CE2", montant: 30000, jours: 8 },
-    { eleve: "OUATTARA Sekou", classe: "CM1", montant: 55000, jours: 22 },
-  ];
-
-  const recettesMensuelles = 1250000;
-  const depensesMensuelles = 850000;
-  const benefice = recettesMensuelles - depensesMensuelles;
+  const recettesMensuelles = 0;
+  const depensesMensuelles = 0;
+  const benefice = 0;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
@@ -138,7 +105,7 @@ const Finances = () => {
                   <AlertTriangle className="h-6 w-6 text-destructive" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-destructive">{retards.length}</p>
+                  <p className="text-lg font-bold text-destructive">0</p>
                   <p className="text-sm text-muted-foreground">Paiements en retard</p>
                 </div>
               </div>
@@ -215,29 +182,37 @@ const Finances = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paiements.map((paiement) => (
-                      <TableRow key={paiement.id}>
-                        <TableCell className="font-medium">{paiement.eleve}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{paiement.classe}</Badge>
-                        </TableCell>
-                        <TableCell className="max-w-xs truncate">{paiement.type}</TableCell>
-                        <TableCell className="font-medium text-secondary">
-                          {formatCurrency(paiement.montant)}
-                        </TableCell>
-                        <TableCell>{new Date(paiement.date).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell>
-                          <Badge variant={paiement.statut === 'Payé' ? 'secondary' : 'outline'}>
-                            {paiement.statut}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
+                    {paiements.length > 0 ? (
+                      paiements.map((paiement) => (
+                        <TableRow key={paiement.id}>
+                          <TableCell className="font-medium">{paiement.eleve}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{paiement.classe}</Badge>
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate">{paiement.type}</TableCell>
+                          <TableCell className="font-medium text-secondary">
+                            {formatCurrency(paiement.montant)}
+                          </TableCell>
+                          <TableCell>{new Date(paiement.date).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell>
+                            <Badge variant={paiement.statut === 'Payé' ? 'secondary' : 'outline'}>
+                              {paiement.statut}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="outline" size="sm">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          Aucun paiement enregistré
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -264,30 +239,38 @@ const Finances = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {retards.map((retard, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{retard.eleve}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{retard.classe}</Badge>
-                        </TableCell>
-                        <TableCell className="font-medium text-destructive">
-                          {formatCurrency(retard.montant)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="destructive">{retard.jours} jours</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              Rappel
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              Contact
-                            </Button>
-                          </div>
+                    {retards.length > 0 ? (
+                      retards.map((retard, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{retard.eleve}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{retard.classe}</Badge>
+                          </TableCell>
+                          <TableCell className="font-medium text-destructive">
+                            {formatCurrency(retard.montant)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="destructive">{retard.jours} jours</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm">
+                                Rappel
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                Contact
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          Aucun paiement en retard
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -301,28 +284,9 @@ const Finances = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {typesPaiements.map((type, index) => {
-                    const montant = Math.floor(Math.random() * 200000) + 50000;
-                    const pourcentage = Math.floor((montant / recettesMensuelles) * 100);
-                    
-                    return (
-                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-                        <div className="flex-1">
-                          <p className="font-medium">{type}</p>
-                          <div className="w-full bg-muted rounded-full h-2 mt-2">
-                            <div 
-                              className="bg-gradient-primary h-2 rounded-full" 
-                              style={{ width: `${pourcentage}%` }}
-                            />
-                          </div>
-                        </div>
-                        <div className="text-right ml-4">
-                          <p className="font-bold text-secondary">{formatCurrency(montant)}</p>
-                          <p className="text-sm text-muted-foreground">{pourcentage}%</p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>Aucune donnée de recettes disponible</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

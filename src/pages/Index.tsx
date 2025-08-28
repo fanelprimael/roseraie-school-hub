@@ -14,42 +14,35 @@ import {
 } from "lucide-react";
 
 const Index = () => {
-  // Mock data - à remplacer par de vraies données de la base
+  // Stats - données à connecter à la base de données
   const stats = [
     {
       title: "Total Élèves",
-      value: 247,
+      value: 0,
       icon: <Users className="h-4 w-4" />,
       description: "Élèves inscrits cette année",
-      trend: { value: 12, isPositive: true }
     },
     {
       title: "Classes Actives",
-      value: 12,
+      value: 0,
       icon: <School className="h-4 w-4" />,
       description: "De la maternelle au CM2",
     },
     {
       title: "Enseignants",
-      value: 18,
+      value: 0,
       icon: <GraduationCap className="h-4 w-4" />,
       description: "Professeurs en poste",
     },
     {
       title: "Recettes Mensuelles",
-      value: "1,250,000 FCFA",
+      value: "0 FCFA",
       icon: <CreditCard className="h-4 w-4" />,
       description: "Revenus de ce mois",
-      trend: { value: 8, isPositive: true }
     }
   ];
 
-  const recentActivities = [
-    { type: "Nouveau", description: "Marie KOUAME inscrite en CP1", time: "Il y a 2h" },
-    { type: "Paiement", description: "Jean DIALLO - Frais scolarité 1", time: "Il y a 3h" },
-    { type: "Note", description: "Notes de Mathématiques saisies - CM2", time: "Il y a 5h" },
-    { type: "Absence", description: "5 absences signalées ce matin", time: "Il y a 6h" },
-  ];
+  const recentActivities = [];
 
   return (
     <Layout>
@@ -124,23 +117,29 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${
-                      activity.type === 'Nouveau' ? 'bg-secondary' :
-                      activity.type === 'Paiement' ? 'bg-primary' :
-                      activity.type === 'Note' ? 'bg-accent' : 'bg-destructive'
-                    }`} />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">
-                        {activity.description}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.time}
-                      </p>
+                {recentActivities.length > 0 ? (
+                  recentActivities.map((activity, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        activity.type === 'Nouveau' ? 'bg-secondary' :
+                        activity.type === 'Paiement' ? 'bg-primary' :
+                        activity.type === 'Note' ? 'bg-accent' : 'bg-destructive'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">
+                          {activity.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.time}
+                        </p>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>Aucune activité récente</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -156,9 +155,9 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p className="text-sm">• 15 élèves en retard de paiement</p>
-              <p className="text-sm">• Bulletin du 1er trimestre à finaliser</p>
-              <p className="text-sm">• Réunion pédagogique prévue demain</p>
+              <div className="text-center py-4 text-muted-foreground">
+                <p>Aucune alerte pour le moment</p>
+              </div>
             </div>
           </CardContent>
         </Card>

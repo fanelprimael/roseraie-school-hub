@@ -7,59 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { UserPlus, Search, Edit, Phone, Mail, School } from "lucide-react";
 
 const Teachers = () => {
-  // Mock data - à remplacer par de vraies données
-  const teachers = [
-    { 
-      id: 1, 
-      nom: "KONE", 
-      prenom: "Fatou", 
-      classe: "Petite Section", 
-      matiere: "Éveil", 
-      telephone: "07 12 34 56 78",
-      email: "f.kone@laroseraie.edu",
-      statut: "Actif" 
-    },
-    { 
-      id: 2, 
-      nom: "TRAORE", 
-      prenom: "Aminata", 
-      classe: "Moyenne Section", 
-      matiere: "Éveil", 
-      telephone: "07 23 45 67 89",
-      email: "a.traore@laroseraie.edu",
-      statut: "Actif" 
-    },
-    { 
-      id: 3, 
-      nom: "DIALLO", 
-      prenom: "Moussa", 
-      classe: "Grande Section", 
-      matiere: "Éveil", 
-      telephone: "07 34 56 78 90",
-      email: "m.diallo@laroseraie.edu",
-      statut: "Actif" 
-    },
-    { 
-      id: 4, 
-      nom: "KOUAME", 
-      prenom: "Marie", 
-      classe: "CP1", 
-      matiere: "Français, Mathématiques", 
-      telephone: "07 45 67 89 01",
-      email: "m.kouame@laroseraie.edu",
-      statut: "Actif" 
-    },
-    { 
-      id: 5, 
-      nom: "SANOGO", 
-      prenom: "Ibrahim", 
-      classe: "CP2", 
-      matiere: "Français, Mathématiques", 
-      telephone: "07 56 78 90 12",
-      email: "i.sanogo@laroseraie.edu",
-      statut: "Actif" 
-    },
-  ];
+  // Données d'enseignants - à connecter à la base de données
+  const teachers = [];
 
   return (
     <Layout>
@@ -87,7 +36,7 @@ const Teachers = () => {
                   <School className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{teachers.length}</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-sm text-muted-foreground">Enseignants actifs</p>
                 </div>
               </div>
@@ -101,7 +50,7 @@ const Teachers = () => {
                   <School className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">3</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-sm text-muted-foreground">Maternelle</p>
                 </div>
               </div>
@@ -115,7 +64,7 @@ const Teachers = () => {
                   <School className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">2</p>
+                  <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-sm text-muted-foreground">Primaire</p>
                 </div>
               </div>
@@ -157,39 +106,47 @@ const Teachers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {teachers.map((teacher) => (
-                  <TableRow key={teacher.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{teacher.nom} {teacher.prenom}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          {teacher.email}
+                {teachers.length > 0 ? (
+                  teachers.map((teacher) => (
+                    <TableRow key={teacher.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{teacher.nom} {teacher.prenom}</p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {teacher.email}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{teacher.classe}</Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <p className="text-sm truncate">{teacher.matiere}</p>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {teacher.telephone}
                         </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{teacher.classe}</Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs">
-                      <p className="text-sm truncate">{teacher.matiere}</p>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {teacher.telephone}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{teacher.statut}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{teacher.statut}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Aucun enseignant enregistré
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>

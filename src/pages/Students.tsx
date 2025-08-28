@@ -6,13 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { UserPlus, Search, Edit, Trash2, Eye } from "lucide-react";
 
 const Students = () => {
-  // Mock data - à remplacer par de vraies données
-  const students = [
-    { id: 1, nom: "KOUAME", prenom: "Marie", classe: "CP1", sexe: "F", statut: "Actif" },
-    { id: 2, nom: "DIALLO", prenom: "Jean", classe: "CE1", sexe: "M", statut: "Actif" },
-    { id: 3, nom: "TRAORE", prenom: "Aminata", classe: "CM2", sexe: "F", statut: "Actif" },
-    { id: 4, nom: "KONE", prenom: "Ibrahim", classe: "CP2", sexe: "M", statut: "Inactif" },
-  ];
+  // Données d'élèves - à connecter à la base de données
+  const students = [];
 
   return (
     <Layout>
@@ -68,34 +63,42 @@ const Students = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">{student.nom}</TableCell>
-                    <TableCell>{student.prenom}</TableCell>
-                    <TableCell>{student.classe}</TableCell>
-                    <TableCell>{student.sexe}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        student.statut === 'Actif' ? 'bg-secondary/20 text-secondary' : 'bg-destructive/20 text-destructive'
-                      }`}>
-                        {student.statut}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {students.length > 0 ? (
+                  students.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">{student.nom}</TableCell>
+                      <TableCell>{student.prenom}</TableCell>
+                      <TableCell>{student.classe}</TableCell>
+                      <TableCell>{student.sexe}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          student.statut === 'Actif' ? 'bg-secondary/20 text-secondary' : 'bg-destructive/20 text-destructive'
+                        }`}>
+                          {student.statut}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Aucun élève enregistré
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
