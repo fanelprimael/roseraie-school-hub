@@ -4,11 +4,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Search, Edit, Phone, Mail, School } from "lucide-react";
+import { Search, Edit, School } from "lucide-react";
+import { TeacherForm } from "@/components/forms/TeacherForm";
+import { useTeachers } from "@/hooks/useTeachers";
+import { useState } from "react";
 
 const Teachers = () => {
-  // Données d'enseignants - à connecter à la base de données
-  const teachers = [];
+  const { teachers } = useTeachers();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredTeachers = teachers.filter(teacher => 
+    teacher.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    teacher.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    teacher.subjects.some(subject => subject.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const activeTeachers = teachers.filter(t => t.status === 'active');
+  const maternelleTeachers = teachers.filter(t => 
+    t.classes.some(cls => ['Petite Section', 'Moyenne Section', 'Grande Section'].includes(cls))
+  );
+  const primaireTeachers = teachers.filter(t => 
+    t.classes.some(cls => ['CP', 'CE1', 'CE2', 'CM1', 'CM2'].includes(cls))
+  );
 
   return (
     <Layout>
@@ -21,10 +38,7 @@ const Teachers = () => {
               Liste et informations du corps enseignant
             </p>
           </div>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nouvel Enseignant
-          </Button>
+          <TeacherForm />
         </div>
 
         {/* Stats */}
@@ -36,7 +50,7 @@ const Teachers = () => {
                   <School className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">0</p>
+                  <p className="text-2xl font-bold text-foreground">{activeTeachers.length}</p>
                   <p className="text-sm text-muted-foreground">Enseignants actifs</p>
                 </div>
               </div>
@@ -50,7 +64,7 @@ const Teachers = () => {
                   <School className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">0</p>
+                  <p className="text-2xl font-bold text-foreground">{maternelleTeachers.length}</p>
                   <p className="text-sm text-muted-foreground">Maternelle</p>
                 </div>
               </div>
@@ -64,7 +78,7 @@ const Teachers = () => {
                   <School className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">0</p>
+                  <p className="text-2xl font-bold text-foreground">{primaireTeachers.length}</p>
                   <p className="text-sm text-muted-foreground">Primaire</p>
                 </div>
               </div>
@@ -83,6 +97,8 @@ const Teachers = () => {
               <Input 
                 placeholder="Rechercher un enseignant..." 
                 className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </CardContent>
@@ -91,14 +107,14 @@ const Teachers = () => {
         {/* Teachers Table */}
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle>Liste des Enseignants</CardTitle>
+            <CardTitle>Liste des Enseignants ({filteredTeachers.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nom & Prénom</TableHead>
-                  <TableHead>Classe</TableHead>
+                  <TableHead>Classes</TableHead>
                   <TableHead>Matière(s)</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Statut</TableHead>
@@ -106,46 +122,38 @@ const Teachers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {teachers.length > 0 ? (
-                  teachers.map((teacher) => (
+                {filteredTeachers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
+                      {teachers.length === 0 ? "Aucun enseignant enregistré pour le moment." : "Aucun enseignant trouvé."}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredTeachers.map((teacher) => (
                     <TableRow key={teacher.id}>
+                      <TableCell className="font-medium">
+                        {teacher.firstName} {teacher.lastName}
+                      </TableCell>
+                      <TableCell>{teacher.classes.join(', ') || 'Aucune'}</TableCell>
+                      <TableCell>{teacher.subjects.join(', ')}</TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{teacher.nom} {teacher.prenom}</p>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            {teacher.email}
-                          </p>
+                          <div>{teacher.email}</div>
+                          <div className="text-sm text-muted-foreground">{teacher.phone}</div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{teacher.classe}</Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="text-sm truncate">{teacher.matiere}</p>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {teacher.telephone}
-                        </p>
+                        <Badge variant={teacher.status === 'active' ? 'default' : 'secondary'}>
+                          {teacher.status === 'active' ? 'Actif' : 'Inactif'}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{teacher.statut}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">
+                        <Button variant="ghost" size="sm">
                           <Edit className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      Aucun enseignant enregistré
-                    </TableCell>
-                  </TableRow>
                 )}
               </TableBody>
             </Table>

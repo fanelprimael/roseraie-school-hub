@@ -3,11 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Filter, Eye, Edit, Trash2 } from "lucide-react";
+import { StudentForm } from "@/components/forms/StudentForm";
+import { useStudents } from "@/hooks/useStudents";
+import { useState } from "react";
 
 const Students = () => {
-  // Données d'élèves - à connecter à la base de données
-  const students = [];
+  const { students, deleteStudent } = useStudents();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredStudents = students.filter(student => 
+    student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.class.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Layout>
@@ -20,10 +30,7 @@ const Students = () => {
               Liste et gestion de tous les élèves de l'école
             </p>
           </div>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nouvel Élève
-          </Button>
+          <StudentForm />
         </div>
 
         {/* Search and Filters */}
@@ -38,9 +45,14 @@ const Students = () => {
                 <Input 
                   placeholder="Rechercher un élève..." 
                   className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline">Filtrer</Button>
+              <Button variant="outline">
+                <Filter className="h-4 w-4 mr-2" />
+                Filtrer
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -48,56 +60,56 @@ const Students = () => {
         {/* Students Table */}
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle>Liste des Élèves ({students.length})</CardTitle>
+            <CardTitle>Liste des Élèves ({filteredStudents.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Prénom</TableHead>
+                  <TableHead>Nom & Prénom</TableHead>
                   <TableHead>Classe</TableHead>
-                  <TableHead>Sexe</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students.length > 0 ? (
-                  students.map((student) => (
+                {filteredStudents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                      {students.length === 0 ? "Aucun élève enregistré pour le moment." : "Aucun élève trouvé."}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredStudents.map((student) => (
                     <TableRow key={student.id}>
-                      <TableCell className="font-medium">{student.nom}</TableCell>
-                      <TableCell>{student.prenom}</TableCell>
-                      <TableCell>{student.classe}</TableCell>
-                      <TableCell>{student.sexe}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          student.statut === 'Actif' ? 'bg-secondary/20 text-secondary' : 'bg-destructive/20 text-destructive'
-                        }`}>
-                          {student.statut}
-                        </span>
+                      <TableCell className="font-medium">
+                        {student.firstName} {student.lastName}
                       </TableCell>
+                      <TableCell>{student.class}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                        <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
+                          {student.status === 'active' ? 'Actif' : 'Inactif'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="sm">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="ghost" size="sm">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => deleteStudent(student.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
                   ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      Aucun élève enregistré
-                    </TableCell>
-                  </TableRow>
                 )}
               </TableBody>
             </Table>

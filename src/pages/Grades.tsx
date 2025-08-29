@@ -6,16 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, FileText, Download, Plus, BarChart3 } from "lucide-react";
+import { GradeForm } from "@/components/forms/GradeForm";
+import { ReportCardForm } from "@/components/forms/ReportCardForm";
+import { SubjectForm } from "@/components/forms/SubjectForm";
+import { useSubjects } from "@/hooks/useSubjects";
 
 const Grades = () => {
-  // Données de notes - à connecter à la base de données
-  const matieres = [
-    "ANGLAIS", "ES", "EST", "EA", "MATHÉMATIQUES", 
-    "LECTURE", "EXPRESSION ÉCRITE", "POÉSIE/CHANT"
-  ];
-
-  const notes = [];
-  const classements = [];
+  const { subjects } = useSubjects();
 
   return (
     <Layout>
@@ -29,14 +26,8 @@ const Grades = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button className="bg-gradient-primary hover:opacity-90">
-              <Plus className="mr-2 h-4 w-4" />
-              Saisir Notes
-            </Button>
-            <Button variant="outline">
-              <FileText className="mr-2 h-4 w-4" />
-              Bulletins
-            </Button>
+            <GradeForm />
+            <ReportCardForm />
           </div>
         </div>
 
@@ -49,7 +40,7 @@ const Grades = () => {
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{matieres.length}</p>
+                  <p className="text-2xl font-bold text-foreground">{subjects.length}</p>
                   <p className="text-sm text-muted-foreground">Matières</p>
                 </div>
               </div>
@@ -134,9 +125,9 @@ const Grades = () => {
                       <SelectValue placeholder="Matière" />
                     </SelectTrigger>
                     <SelectContent>
-                      {matieres.map((matiere) => (
-                        <SelectItem key={matiere} value={matiere.toLowerCase()}>
-                          {matiere}
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject.id} value={subject.id}>
+                          {subject.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -176,33 +167,11 @@ const Grades = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {notes.length > 0 ? (
-                      notes.map((note) => (
-                        <TableRow key={note.id}>
-                          <TableCell className="font-medium">{note.eleve}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{note.classe}</Badge>
-                          </TableCell>
-                          <TableCell>{note.matiere}</TableCell>
-                          <TableCell>{note.trimestre}er</TableCell>
-                          <TableCell>
-                            <span className={`font-medium ${
-                              note.note >= 16 ? 'text-secondary' :
-                              note.note >= 10 ? 'text-primary' : 'text-destructive'
-                            }`}>
-                              {note.note}/20
-                            </span>
-                          </TableCell>
-                          <TableCell>{note.moyenne}/20</TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                          Aucune note saisie
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        Aucune note saisie
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>
@@ -225,30 +194,11 @@ const Grades = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {classements.length > 0 ? (
-                      classements.map((classement) => (
-                        <TableRow key={classement.rang}>
-                          <TableCell>
-                            <Badge variant={classement.rang <= 3 ? "default" : "outline"}>
-                              {classement.rang}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-medium">{classement.eleve}</TableCell>
-                          <TableCell>{classement.classe}</TableCell>
-                          <TableCell>
-                            <span className="font-medium text-secondary">
-                              {classement.moyenne}/20
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                          Aucun classement disponible
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        Aucun classement disponible
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>

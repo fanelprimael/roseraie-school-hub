@@ -2,13 +2,16 @@ import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { School, Users, Plus, Edit } from "lucide-react";
+import { School, Users, Edit } from "lucide-react";
+import { ClassForm } from "@/components/forms/ClassForm";
+import { useClasses } from "@/hooks/useClasses";
+import { useStudents } from "@/hooks/useStudents";
 
 const Classes = () => {
-  // Données de classes - à connecter à la base de données
-  const classes = [];
-
-  const totalEleves = classes.reduce((sum, classe) => sum + classe.effectif, 0);
+  const { classes } = useClasses();
+  const { students } = useStudents();
+  
+  const totalStudents = students.length;
 
   return (
     <Layout>
@@ -21,10 +24,7 @@ const Classes = () => {
               Organisation des classes et répartition des élèves
             </p>
           </div>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            <Plus className="mr-2 h-4 w-4" />
-            Nouvelle Classe
-          </Button>
+          <ClassForm />
         </div>
 
         {/* Stats */}
@@ -36,7 +36,7 @@ const Classes = () => {
                   <School className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{classes.length}</p>
+                  <p className="text-2xl font-bold text-foreground">{classes.filter(c => c.studentCount > 0).length}</p>
                   <p className="text-sm text-muted-foreground">Classes actives</p>
                 </div>
               </div>
@@ -50,7 +50,7 @@ const Classes = () => {
                   <Users className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{totalEleves}</p>
+                  <p className="text-2xl font-bold text-foreground">{totalStudents}</p>
                   <p className="text-sm text-muted-foreground">Total élèves</p>
                 </div>
               </div>
@@ -64,7 +64,7 @@ const Classes = () => {
                   <School className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{Math.round(totalEleves / classes.length)}</p>
+                  <p className="text-2xl font-bold text-foreground">{classes.length > 0 ? Math.round(totalStudents / classes.length) : 0}</p>
                   <p className="text-sm text-muted-foreground">Moyenne par classe</p>
                 </div>
               </div>
@@ -74,14 +74,19 @@ const Classes = () => {
 
         {/* Classes Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {classes.length > 0 ? (
-            classes.map((classe) => (
-              <Card key={classe.id} className="shadow-soft hover:shadow-lg transition-shadow">
+          {classes.length === 0 ? (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              <School className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Aucune classe créée</p>
+            </div>
+          ) : (
+            classes.map((classItem) => (
+              <Card key={classItem.id} className="shadow-soft hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{classe.nom}</CardTitle>
+                    <CardTitle className="text-lg">{classItem.name}</CardTitle>
                     <Badge variant="outline" className="text-xs">
-                      {classe.niveau}
+                      {classItem.level}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -89,12 +94,12 @@ const Classes = () => {
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      <strong>{classe.effectif}</strong> élèves
+                      <strong>{classItem.studentCount}</strong>/{classItem.capacity} élèves
                     </span>
                   </div>
                   
                   <div className="text-sm text-muted-foreground">
-                    <strong>Enseignant:</strong> {classe.enseignant}
+                    <strong>Enseignant:</strong> {classItem.teacher}
                   </div>
 
                   <div className="flex gap-2 pt-2">
@@ -110,11 +115,6 @@ const Classes = () => {
                 </CardContent>
               </Card>
             ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-muted-foreground">
-              <School className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Aucune classe créée</p>
-            </div>
           )}
         </div>
       </div>
