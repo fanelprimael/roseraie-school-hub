@@ -12,31 +12,44 @@ import {
   BookOpen,
   AlertCircle
 } from "lucide-react";
+import { useStudents } from "@/hooks/useStudents";
+import { useClasses } from "@/hooks/useClasses";
+import { useTeachers } from "@/hooks/useTeachers";
+import { useFinances } from "@/hooks/useFinances";
+import { StudentForm } from "@/components/forms/StudentForm";
+import { GradeForm } from "@/components/forms/GradeForm";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  // Stats - données à connecter à la base de données
-  const stats = [
+  const { students } = useStudents();
+  const { classes } = useClasses();
+  const { teachers } = useTeachers();
+  const { stats } = useFinances();
+  const navigate = useNavigate();
+
+  // Stats - données connectées aux hooks
+  const statsData = [
     {
       title: "Total Élèves",
-      value: 0,
+      value: students.length,
       icon: <Users className="h-4 w-4" />,
       description: "Élèves inscrits cette année",
     },
     {
       title: "Classes Actives",
-      value: 0,
+      value: classes.length,
       icon: <School className="h-4 w-4" />,
       description: "De la maternelle au CM2",
     },
     {
       title: "Enseignants",
-      value: 0,
+      value: teachers.length,
       icon: <GraduationCap className="h-4 w-4" />,
       description: "Professeurs en poste",
     },
     {
       title: "Recettes Mensuelles",
-      value: "0 FCFA",
+      value: new Intl.NumberFormat('fr-FR').format(stats.monthly_income) + " FCFA",
       icon: <CreditCard className="h-4 w-4" />,
       description: "Revenus de ce mois",
     }
@@ -56,11 +69,8 @@ const Index = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button className="bg-gradient-primary hover:opacity-90">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Nouvel Élève
-            </Button>
-            <Button variant="outline">
+            <StudentForm />
+            <Button variant="outline" onClick={() => navigate('/grades')}>
               <BookOpen className="mr-2 h-4 w-4" />
               Saisir Notes
             </Button>
@@ -69,7 +79,7 @@ const Index = () => {
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
+          {statsData.map((stat, index) => (
             <StatsCard key={index} {...stat} />
           ))}
         </div>
@@ -88,19 +98,19 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/students')}>
                 <Users className="mr-2 h-4 w-4" />
                 Gérer les Élèves
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/finances')}>
                 <CreditCard className="mr-2 h-4 w-4" />
                 Enregistrer Paiement
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/grades')}>
                 <BookOpen className="mr-2 h-4 w-4" />
                 Notes & Bulletins
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/classes')}>
                 <School className="mr-2 h-4 w-4" />
                 Gestion Classes
               </Button>

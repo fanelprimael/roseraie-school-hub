@@ -18,8 +18,60 @@ import {
   AlertTriangle,
   Save
 } from "lucide-react";
+import { useSettings } from "@/hooks/useSettings";
+import { useState } from "react";
 
 const Settings = () => {
+  const { 
+    schoolSettings, 
+    users, 
+    securitySettings, 
+    updateSchoolSettings,
+    createUser,
+    updateUserPermissions,
+    updateSecuritySettings,
+    changePassword,
+    exportData,
+    importData,
+    resetSystem,
+    isLoading
+  } = useSettings();
+
+  const [formData, setFormData] = useState(schoolSettings);
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const handleSaveSettings = async () => {
+    await updateSchoolSettings(formData);
+  };
+
+  const handlePasswordChange = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      return;
+    }
+    await changePassword(passwordData.oldPassword, passwordData.newPassword);
+    setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  };
+
+  const handleExportData = async (format: 'json' | 'csv' | 'excel') => {
+    await exportData(format);
+  };
+
+  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      await importData(file);
+    }
+  };
+
+  const handleResetSystem = async () => {
+    if (confirm("Êtes-vous sûr de vouloir réinitialiser le système ? Cette action est irréversible.")) {
+      await resetSystem();
+    }
+  };
   return (
     <Layout>
       <div className="space-y-6 animate-fade-in">
@@ -31,9 +83,13 @@ const Settings = () => {
               Configuration et administration du système
             </p>
           </div>
-          <Button className="bg-gradient-primary hover:opacity-90">
+          <Button 
+            className="bg-gradient-primary hover:opacity-90"
+            onClick={handleSaveSettings}
+            disabled={isLoading}
+          >
             <Save className="mr-2 h-4 w-4" />
-            Sauvegarder
+            {isLoading ? "Sauvegarde..." : "Sauvegarder"}
           </Button>
         </div>
 
@@ -56,15 +112,23 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="nom-ecole">Nom de l'école</Label>
-                    <Input id="nom-ecole" defaultValue="Complexe Scolaire La Roseraie" />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="nom-ecole">Nom de l'école</Label>
+                     <Input 
+                       id="nom-ecole" 
+                       value={formData.name}
+                       onChange={(e) => setFormData({...formData, name: e.target.value})}
+                     />
+                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="type-ecole">Type d'établissement</Label>
-                    <Input id="type-ecole" defaultValue="Primaire et Maternelle" />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="type-ecole">Type d'établissement</Label>
+                     <Input 
+                       id="type-ecole" 
+                       value={formData.type}
+                       onChange={(e) => setFormData({...formData, type: e.target.value})}
+                     />
+                   </div>
                 </div>
 
                 <div className="space-y-2">
@@ -202,9 +266,14 @@ const Settings = () => {
                   <Input id="confirmer-mdp" type="password" />
                 </div>
 
-                <Button variant="outline" className="w-full">
-                  Changer le mot de passe
-                </Button>
+                 <Button 
+                   variant="outline" 
+                   className="w-full"
+                   onClick={handlePasswordChange}
+                   disabled={isLoading || !passwordData.oldPassword || !passwordData.newPassword}
+                 >
+                   {isLoading ? "Modification..." : "Changer le mot de passe"}
+                 </Button>
 
                 <Separator />
 
@@ -247,9 +316,14 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">
                     Supprimer toutes les données et remettre à zéro
                   </p>
-                  <Button variant="destructive" size="sm">
-                    Réinitialiser
-                  </Button>
+                   <Button 
+                     variant="destructive" 
+                     size="sm"
+                     onClick={handleResetSystem}
+                     disabled={isLoading}
+                   >
+                     {isLoading ? "Réinitialisation..." : "Réinitialiser"}
+                   </Button>
                 </div>
               </CardContent>
             </Card>
@@ -266,16 +340,36 @@ const Settings = () => {
               <CardContent className="space-y-6">
                 <div>
                   <h4 className="font-medium mb-3">Sauvegarde</h4>
-                  <div className="flex gap-3">
-                    <Button variant="outline" className="flex-1">
-                      <Download className="mr-2 h-4 w-4" />
-                      Sauvegarder les données
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Restaurer les données
-                    </Button>
-                  </div>
+                   <div className="flex gap-3">
+                     <Button 
+                       variant="outline" 
+                       className="flex-1"
+                       onClick={() => handleExportData('json')}
+                       disabled={isLoading}
+                     >
+                       <Download className="mr-2 h-4 w-4" />
+                       Sauvegarder les données
+                     </Button>
+                     <label className="flex-1">
+                       <Button 
+                         variant="outline" 
+                         className="w-full"
+                         disabled={isLoading}
+                         asChild
+                       >
+                         <span>
+                           <Upload className="mr-2 h-4 w-4" />
+                           Restaurer les données
+                         </span>
+                       </Button>
+                       <input
+                         type="file"
+                         accept=".json,.csv,.xlsx"
+                         onChange={handleImportData}
+                         className="hidden"
+                       />
+                     </label>
+                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
                     Dernière sauvegarde: 15 janvier 2024 à 14:30
                   </p>
@@ -300,16 +394,34 @@ const Settings = () => {
 
                 <div>
                   <h4 className="font-medium mb-3">Import/Export</h4>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <Button variant="outline">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Importer élèves (Excel)
-                    </Button>
-                    <Button variant="outline">
-                      <Download className="mr-2 h-4 w-4" />
-                      Exporter toutes les données
-                    </Button>
-                  </div>
+                   <div className="grid gap-3 md:grid-cols-2">
+                     <label>
+                       <Button 
+                         variant="outline"
+                         disabled={isLoading}
+                         asChild
+                       >
+                         <span>
+                           <Upload className="mr-2 h-4 w-4" />
+                           Importer élèves (Excel)
+                         </span>
+                       </Button>
+                       <input
+                         type="file"
+                         accept=".xlsx,.xls"
+                         onChange={handleImportData}
+                         className="hidden"
+                       />
+                     </label>
+                     <Button 
+                       variant="outline"
+                       onClick={() => handleExportData('excel')}
+                       disabled={isLoading}
+                     >
+                       <Download className="mr-2 h-4 w-4" />
+                       Exporter toutes les données
+                     </Button>
+                   </div>
                 </div>
               </CardContent>
             </Card>

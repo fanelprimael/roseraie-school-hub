@@ -14,14 +14,42 @@ import {
   Calendar,
   Filter
 } from "lucide-react";
+import { useReports } from "@/hooks/useReports";
+import { useState } from "react";
 
 const Reports = () => {
-  // Données de rapports - à connecter à la base de données
-  const effectifsParClasse = [];
-  const totalEleves = 0;
-  const totalGarcons = 0;
-  const totalFilles = 0;
-  const statistiquesReussite = [];
+  const { 
+    reportData, 
+    generatePDFReport, 
+    generateExcelReport,
+    exportStudentsList,
+    exportOverduePayments,
+    exportGlobalReport,
+    getClassStatistics,
+    getTotalStats,
+    isLoading 
+  } = useReports();
+
+  const [selectedReportType, setSelectedReportType] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState("");
+  const [selectedFormat, setSelectedFormat] = useState("");
+
+  const classStats = getClassStatistics();
+  const totalStats = getTotalStats();
+
+  const handleExport = async () => {
+    if (!selectedReportType || !selectedPeriod || !selectedFormat) return;
+    
+    if (selectedFormat === "pdf") {
+      await generatePDFReport(selectedReportType, selectedPeriod);
+    } else {
+      await generateExcelReport(selectedReportType, selectedPeriod);
+    }
+  };
+
+  const handleFilterApply = () => {
+    console.log("Filtres appliqués");
+  };
 
   return (
     <Layout>
@@ -35,11 +63,11 @@ const Reports = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleFilterApply}>
               <Filter className="mr-2 h-4 w-4" />
               Filtres
             </Button>
-            <Button className="bg-gradient-primary hover:opacity-90">
+            <Button className="bg-gradient-primary hover:opacity-90" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               Exporter
             </Button>
@@ -54,10 +82,10 @@ const Reports = () => {
                 <div className="p-3 rounded-lg bg-primary/10">
                   <Users className="h-6 w-6 text-primary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{totalEleves}</p>
-                  <p className="text-sm text-muted-foreground">Total Élèves</p>
-                </div>
+                 <div>
+                   <p className="text-2xl font-bold text-foreground">{totalStats.total_students}</p>
+                   <p className="text-sm text-muted-foreground">Total Élèves</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -68,10 +96,10 @@ const Reports = () => {
                 <div className="p-3 rounded-lg bg-secondary/10">
                   <School className="h-6 w-6 text-secondary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">0</p>
-                  <p className="text-sm text-muted-foreground">Classes</p>
-                </div>
+                 <div>
+                   <p className="text-2xl font-bold text-foreground">{totalStats.total_classes}</p>
+                   <p className="text-sm text-muted-foreground">Classes</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -122,28 +150,28 @@ const Reports = () => {
                   <CardTitle>Effectifs par Classe</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {effectifsParClasse.length > 0 ? (
-                      effectifsParClasse.map((classe, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                          <div>
-                            <p className="font-medium">{classe.classe}</p>
-                            <div className="flex gap-4 text-sm text-muted-foreground">
-                              <span>♂ {classe.garcons}</span>
-                              <span>♀ {classe.filles}</span>
-                            </div>
-                          </div>
-                          <Badge variant="outline" className="text-lg px-3 py-1">
-                            {classe.total}
-                          </Badge>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p>Aucune classe enregistrée</p>
-                      </div>
-                    )}
-                  </div>
+                   <div className="space-y-4">
+                     {classStats.length > 0 ? (
+                       classStats.map((classe, index) => (
+                         <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                           <div>
+                             <p className="font-medium">{classe.class_name}</p>
+                             <div className="flex gap-4 text-sm text-muted-foreground">
+                               <span>♂ {classe.boys}</span>
+                               <span>♀ {classe.girls}</span>
+                             </div>
+                           </div>
+                           <Badge variant="outline" className="text-lg px-3 py-1">
+                             {classe.total_students}
+                           </Badge>
+                         </div>
+                       ))
+                     ) : (
+                       <div className="text-center py-8 text-muted-foreground">
+                         <p>Aucune classe enregistrée</p>
+                       </div>
+                     )}
+                   </div>
                 </CardContent>
               </Card>
 
@@ -152,40 +180,40 @@ const Reports = () => {
                 <CardHeader>
                   <CardTitle>Répartition Générale</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-primary">{totalEleves}</p>
-                    <p className="text-muted-foreground">Total Élèves</p>
-                  </div>
+                 <CardContent className="space-y-6">
+                   <div className="text-center">
+                     <p className="text-3xl font-bold text-primary">{totalStats.total_students}</p>
+                     <p className="text-muted-foreground">Total Élèves</p>
+                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Garçons</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-32 bg-muted rounded-full h-2">
-                          <div 
-                            className="bg-primary h-2 rounded-full" 
-                            style={{ width: `${(totalGarcons / totalEleves) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">{totalGarcons}</span>
-                      </div>
-                    </div>
+                   <div className="space-y-4">
+                     <div className="flex items-center justify-between">
+                       <span className="text-sm font-medium">Garçons</span>
+                       <div className="flex items-center gap-2">
+                         <div className="w-32 bg-muted rounded-full h-2">
+                           <div 
+                             className="bg-primary h-2 rounded-full" 
+                             style={{ width: totalStats.total_students > 0 ? `${(totalStats.total_boys / totalStats.total_students) * 100}%` : '0%' }}
+                           />
+                         </div>
+                         <span className="text-sm font-medium">{totalStats.total_boys}</span>
+                       </div>
+                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Filles</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-32 bg-muted rounded-full h-2">
-                          <div 
-                            className="bg-secondary h-2 rounded-full" 
-                            style={{ width: `${(totalFilles / totalEleves) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">{totalFilles}</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
+                     <div className="flex items-center justify-between">
+                       <span className="text-sm font-medium">Filles</span>
+                       <div className="flex items-center gap-2">
+                         <div className="w-32 bg-muted rounded-full h-2">
+                           <div 
+                             className="bg-secondary h-2 rounded-full" 
+                             style={{ width: totalStats.total_students > 0 ? `${(totalStats.total_girls / totalStats.total_students) * 100}%` : '0%' }}
+                           />
+                         </div>
+                         <span className="text-sm font-medium">{totalStats.total_girls}</span>
+                       </div>
+                     </div>
+                   </div>
+                 </CardContent>
               </Card>
             </div>
           </TabsContent>
@@ -196,35 +224,11 @@ const Reports = () => {
                 <CardTitle>Statistiques de Réussite par Classe</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {statistiquesReussite.length > 0 ? (
-                    statistiquesReussite.map((stat, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-                        <div className="flex-1">
-                          <p className="font-medium">{stat.classe}</p>
-                          <div className="flex items-center gap-4 mt-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">Moyenne:</span>
-                              <Badge variant="outline" className="text-primary">
-                                {stat.moyenne}/20
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">Réussite:</span>
-                              <Badge variant={stat.taux_reussite >= 90 ? "secondary" : stat.taux_reussite >= 80 ? "default" : "outline"}>
-                                {stat.taux_reussite}%
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p>Aucune statistique de réussite disponible</p>
-                    </div>
-                  )}
-                </div>
+                 <div className="space-y-4">
+                   <div className="text-center py-8 text-muted-foreground">
+                     <p>Aucune statistique de réussite disponible</p>
+                   </div>
+                 </div>
               </CardContent>
             </Card>
           </TabsContent>

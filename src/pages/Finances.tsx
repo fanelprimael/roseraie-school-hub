@@ -7,28 +7,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, Plus, Search, Download, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
+import { useFinances } from "@/hooks/useFinances";
+import { PaymentForm } from "@/components/forms/PaymentForm";
+import { useState } from "react";
 
 const Finances = () => {
-  // Données financières - à connecter à la base de données
-  const typesPaiements = [
-    "Frais de scolarité 1",
-    "Frais de scolarité 2", 
-    "Frais de scolarité 3",
-    "Photocopie et anglais",
-    "Uniforme",
-    "Cantine",
-    "Activité"
-  ];
+  const { 
+    payments, 
+    paymentTypes, 
+    stats, 
+    getOverduePayments, 
+    searchPayments,
+    isLoading 
+  } = useFinances();
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
-  const paiements = [];
-  const retards = [];
+  const filteredPayments = payments.filter(payment => {
+    const matchesSearch = searchQuery === "" || 
+      searchPayments(searchQuery).some(p => p.id === payment.id);
+    const matchesType = selectedType === "all" || payment.type === selectedType;
+    const matchesStatus = selectedStatus === "all" || payment.status === selectedStatus;
+    
+    return matchesSearch && matchesType && matchesStatus;
+  });
 
-  const recettesMensuelles = 0;
-  const depensesMensuelles = 0;
-  const benefice = 0;
+  const overduePayments = getOverduePayments();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+  };
+
+  const generateReport = async () => {
+    // Simulate report generation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Rapport financier généré");
   };
 
   return (
@@ -43,11 +58,8 @@ const Finances = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button className="bg-gradient-primary hover:opacity-90">
-              <Plus className="mr-2 h-4 w-4" />
-              Nouveau Paiement
-            </Button>
-            <Button variant="outline">
+            <PaymentForm />
+            <Button variant="outline" onClick={generateReport}>
               <Download className="mr-2 h-4 w-4" />
               Rapport
             </Button>
@@ -62,10 +74,10 @@ const Finances = () => {
                 <div className="p-3 rounded-lg bg-secondary/10">
                   <TrendingUp className="h-6 w-6 text-secondary" />
                 </div>
-                <div>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(recettesMensuelles)}</p>
-                  <p className="text-sm text-muted-foreground">Recettes ce mois</p>
-                </div>
+                 <div>
+                   <p className="text-lg font-bold text-foreground">{formatCurrency(stats.monthly_income)}</p>
+                   <p className="text-sm text-muted-foreground">Recettes ce mois</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -76,10 +88,10 @@ const Finances = () => {
                 <div className="p-3 rounded-lg bg-destructive/10">
                   <TrendingDown className="h-6 w-6 text-destructive" />
                 </div>
-                <div>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(depensesMensuelles)}</p>
-                  <p className="text-sm text-muted-foreground">Dépenses ce mois</p>
-                </div>
+                 <div>
+                   <p className="text-lg font-bold text-foreground">{formatCurrency(stats.monthly_expenses)}</p>
+                   <p className="text-sm text-muted-foreground">Dépenses ce mois</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -90,10 +102,10 @@ const Finances = () => {
                 <div className="p-3 rounded-lg bg-primary/10">
                   <CreditCard className="h-6 w-6 text-primary" />
                 </div>
-                <div>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(benefice)}</p>
-                  <p className="text-sm text-muted-foreground">Bénéfice net</p>
-                </div>
+                 <div>
+                   <p className="text-lg font-bold text-foreground">{formatCurrency(stats.net_profit)}</p>
+                   <p className="text-sm text-muted-foreground">Bénéfice net</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -104,10 +116,10 @@ const Finances = () => {
                 <div className="p-3 rounded-lg bg-destructive/10">
                   <AlertTriangle className="h-6 w-6 text-destructive" />
                 </div>
-                <div>
-                  <p className="text-lg font-bold text-destructive">0</p>
-                  <p className="text-sm text-muted-foreground">Paiements en retard</p>
-                </div>
+                 <div>
+                   <p className="text-lg font-bold text-destructive">{stats.overdue_count}</p>
+                   <p className="text-sm text-muted-foreground">Paiements en retard</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -139,11 +151,11 @@ const Finances = () => {
                       <SelectValue placeholder="Type de paiement" />
                     </SelectTrigger>
                     <SelectContent>
-                      {typesPaiements.map((type) => (
-                        <SelectItem key={type} value={type.toLowerCase()}>
-                          {type}
-                        </SelectItem>
-                      ))}
+                     {paymentTypes.map((type) => (
+                       <SelectItem key={type.id} value={type.name.toLowerCase()}>
+                         {type.name}
+                       </SelectItem>
+                     ))}
                     </SelectContent>
                   </Select>
 
@@ -181,39 +193,39 @@ const Finances = () => {
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {paiements.length > 0 ? (
-                      paiements.map((paiement) => (
-                        <TableRow key={paiement.id}>
-                          <TableCell className="font-medium">{paiement.eleve}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{paiement.classe}</Badge>
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate">{paiement.type}</TableCell>
-                          <TableCell className="font-medium text-secondary">
-                            {formatCurrency(paiement.montant)}
-                          </TableCell>
-                          <TableCell>{new Date(paiement.date).toLocaleDateString('fr-FR')}</TableCell>
-                          <TableCell>
-                            <Badge variant={paiement.statut === 'Payé' ? 'secondary' : 'outline'}>
-                              {paiement.statut}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="outline" size="sm">
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                          Aucun paiement enregistré
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
+                   <TableBody>
+                     {filteredPayments.length > 0 ? (
+                       filteredPayments.map((payment) => (
+                         <TableRow key={payment.id}>
+                           <TableCell className="font-medium">{payment.student_name}</TableCell>
+                           <TableCell>
+                             <Badge variant="outline">{payment.class_name}</Badge>
+                           </TableCell>
+                           <TableCell className="max-w-xs truncate">{payment.type}</TableCell>
+                           <TableCell className="font-medium text-secondary">
+                             {formatCurrency(payment.amount)}
+                           </TableCell>
+                           <TableCell>{new Date(payment.date).toLocaleDateString('fr-FR')}</TableCell>
+                           <TableCell>
+                             <Badge variant={payment.status === 'Payé' ? 'secondary' : 'outline'}>
+                               {payment.status}
+                             </Badge>
+                           </TableCell>
+                           <TableCell>
+                             <Button variant="outline" size="sm">
+                               <Download className="h-4 w-4" />
+                             </Button>
+                           </TableCell>
+                         </TableRow>
+                       ))
+                     ) : (
+                       <TableRow>
+                         <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                           Aucun paiement enregistré
+                         </TableCell>
+                       </TableRow>
+                     )}
+                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
@@ -238,40 +250,40 @@ const Finances = () => {
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {retards.length > 0 ? (
-                      retards.map((retard, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{retard.eleve}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{retard.classe}</Badge>
-                          </TableCell>
-                          <TableCell className="font-medium text-destructive">
-                            {formatCurrency(retard.montant)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="destructive">{retard.jours} jours</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
-                                Rappel
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                Contact
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                          Aucun paiement en retard
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
+                   <TableBody>
+                     {overduePayments.length > 0 ? (
+                       overduePayments.map((payment, index) => (
+                         <TableRow key={index}>
+                           <TableCell className="font-medium">{payment.student_name}</TableCell>
+                           <TableCell>
+                             <Badge variant="outline">{payment.class_name}</Badge>
+                           </TableCell>
+                           <TableCell className="font-medium text-destructive">
+                             {formatCurrency(payment.amount)}
+                           </TableCell>
+                           <TableCell>
+                             <Badge variant="destructive">En retard</Badge>
+                           </TableCell>
+                           <TableCell>
+                             <div className="flex gap-2">
+                               <Button variant="outline" size="sm">
+                                 Rappel
+                               </Button>
+                               <Button variant="outline" size="sm">
+                                 Contact
+                               </Button>
+                             </div>
+                           </TableCell>
+                         </TableRow>
+                       ))
+                     ) : (
+                       <TableRow>
+                         <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                           Aucun paiement en retard
+                         </TableCell>
+                       </TableRow>
+                     )}
+                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
