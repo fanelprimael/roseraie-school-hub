@@ -95,7 +95,7 @@ export const PaymentForm = ({ onSuccess }: PaymentFormProps) => {
               <SelectContent>
                 {paymentTypes.map((type) => (
                   <SelectItem key={type.id} value={type.id}>
-                    {type.name} - {type.amount} FCFA
+                    {type.name}
                   </SelectItem>
                 ))}
               </SelectContent>

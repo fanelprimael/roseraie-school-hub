@@ -10,13 +10,14 @@ export interface Subject {
 
 export const useSubjects = () => {
   const [subjects, setSubjects] = useState<Subject[]>([
-    { id: '1', name: 'Français', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
-    { id: '2', name: 'Mathématiques', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
-    { id: '3', name: 'Sciences', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
-    { id: '4', name: 'Histoire-Géographie', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
-    { id: '5', name: 'Anglais', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
-    { id: '6', name: 'Arts Plastiques', coefficient: 1, category: 'optional', createdAt: new Date().toISOString() },
-    { id: '7', name: 'Éducation Physique', coefficient: 1, category: 'optional', createdAt: new Date().toISOString() },
+    { id: '1', name: 'ANGLAIS', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '2', name: 'ES', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '3', name: 'EST', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '4', name: 'EA', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '5', name: 'MATHÉMATIQUES', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '6', name: 'LECTURE', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '7', name: 'EXPRESSION ÉCRITE', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
+    { id: '8', name: 'POÉSIE/CHANT', coefficient: 1, category: 'core', createdAt: new Date().toISOString() },
   ]);
   const [isLoading, setIsLoading] = useState(false);
 

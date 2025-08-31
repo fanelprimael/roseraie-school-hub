@@ -16,12 +16,13 @@ export const useTeachers = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const addTeacher = async (teacherData: Omit<Teacher, 'id' | 'createdAt'>) => {
+  const addTeacher = async (teacherData: Omit<Teacher, 'id' | 'createdAt' | 'subjects'>) => {
     setIsLoading(true);
     try {
       const newTeacher: Teacher = {
         ...teacherData,
         id: crypto.randomUUID(),
+        subjects: [], // Initialize empty subjects array
         createdAt: new Date().toISOString(),
       };
       setTeachers(prev => [...prev, newTeacher]);

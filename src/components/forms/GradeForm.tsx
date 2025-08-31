@@ -14,9 +14,9 @@ import { PlusCircle } from "lucide-react";
 interface GradeFormData {
   studentId: string;
   subjectId: string;
-  quarter: string;
-  grade: number;
   evaluation: string;
+  grade: number;
+  evaluationType: string;
 }
 
 export const GradeForm = () => {
@@ -30,9 +30,9 @@ export const GradeForm = () => {
     defaultValues: {
       studentId: '',
       subjectId: '',
-      quarter: '',
-      grade: 0,
       evaluation: '',
+      grade: 0,
+      evaluationType: '',
     },
   });
 
@@ -122,20 +122,22 @@ export const GradeForm = () => {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="quarter"
+                name="evaluation"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Trimestre</FormLabel>
+                    <FormLabel>Évaluation</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Trimestre" />
+                          <SelectValue placeholder="Évaluation" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="T1">1er Trimestre</SelectItem>
-                        <SelectItem value="T2">2ème Trimestre</SelectItem>
-                        <SelectItem value="T3">3ème Trimestre</SelectItem>
+                        <SelectItem value="E1">1ère Évaluation</SelectItem>
+                        <SelectItem value="E2">2ème Évaluation</SelectItem>
+                        <SelectItem value="E3">3ème Évaluation</SelectItem>
+                        <SelectItem value="E4">4ème Évaluation</SelectItem>
+                        <SelectItem value="E5">5ème Évaluation</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -168,7 +170,7 @@ export const GradeForm = () => {
 
             <FormField
               control={form.control}
-              name="evaluation"
+              name="evaluationType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type d'évaluation</FormLabel>

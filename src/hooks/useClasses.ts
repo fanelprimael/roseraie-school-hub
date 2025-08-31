@@ -11,7 +11,16 @@ export interface Class {
 }
 
 export const useClasses = () => {
-  const [classes, setClasses] = useState<Class[]>([]);
+  const [classes, setClasses] = useState<Class[]>([
+    { id: '1', name: 'Maternelle 1', level: 'Maternelle', teacher: '', capacity: 25, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '2', name: 'Maternelle 2', level: 'Maternelle', teacher: '', capacity: 25, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '3', name: 'CI', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '4', name: 'CP', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '5', name: 'CE1', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '6', name: 'CE2', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '7', name: 'CM1', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
+    { id: '8', name: 'CM2', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
+  ]);
   const [isLoading, setIsLoading] = useState(false);
 
   const addClass = async (classData: Omit<Class, 'id' | 'createdAt' | 'studentCount'>) => {

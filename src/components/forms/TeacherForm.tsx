@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { useTeachers } from "@/hooks/useTeachers";
-import { useSubjects } from "@/hooks/useSubjects";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
 
@@ -16,7 +15,6 @@ interface TeacherFormData {
   lastName: string;
   email: string;
   phone: string;
-  subjects: string[];
   classes: string[];
   status: 'active' | 'inactive';
 }
@@ -24,7 +22,6 @@ interface TeacherFormData {
 export const TeacherForm = () => {
   const [open, setOpen] = useState(false);
   const { addTeacher, isLoading } = useTeachers();
-  const { subjects } = useSubjects();
   const { toast } = useToast();
   
   const form = useForm<TeacherFormData>({
@@ -33,7 +30,6 @@ export const TeacherForm = () => {
       lastName: '',
       email: '',
       phone: '',
-      subjects: [],
       classes: [],
       status: 'active',
     },
@@ -128,37 +124,6 @@ export const TeacherForm = () => {
                 )}
               />
             </div>
-
-            <FormField
-              control={form.control}
-              name="subjects"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Matières enseignées</FormLabel>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {subjects.map((subject) => (
-                      <div key={subject.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={subject.id}
-                          checked={field.value.includes(subject.name)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              field.onChange([...field.value, subject.name]);
-                            } else {
-                              field.onChange(field.value.filter(s => s !== subject.name));
-                            }
-                          }}
-                        />
-                        <label htmlFor={subject.id} className="text-sm">
-                          {subject.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
