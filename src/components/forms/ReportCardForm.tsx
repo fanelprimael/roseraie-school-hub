@@ -10,7 +10,7 @@ import { FileText } from "lucide-react";
 
 interface ReportCardFormData {
   classId: string;
-  quarter: string;
+  evaluation: string;
 }
 
 export const ReportCardForm = () => {
@@ -21,7 +21,7 @@ export const ReportCardForm = () => {
   const form = useForm<ReportCardFormData>({
     defaultValues: {
       classId: '',
-      quarter: '',
+      evaluation: '',
     },
   });
 
@@ -85,20 +85,22 @@ export const ReportCardForm = () => {
 
             <FormField
               control={form.control}
-              name="quarter"
+              name="evaluation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Trimestre</FormLabel>
+                  <FormLabel>Évaluation</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner le trimestre" />
+                        <SelectValue placeholder="Sélectionner l'évaluation" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="T1">1er Trimestre</SelectItem>
-                      <SelectItem value="T2">2ème Trimestre</SelectItem>
-                      <SelectItem value="T3">3ème Trimestre</SelectItem>
+                      <SelectItem value="E1">1ère Évaluation</SelectItem>
+                      <SelectItem value="E2">2ème Évaluation</SelectItem>
+                      <SelectItem value="E3">3ème Évaluation</SelectItem>
+                      <SelectItem value="E4">4ème Évaluation</SelectItem>
+                      <SelectItem value="E5">5ème Évaluation</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

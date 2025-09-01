@@ -300,11 +300,19 @@ const Reports = () => {
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-2">
-                  <Button className="bg-gradient-primary hover:opacity-90">
+                  <Button 
+                    className="bg-gradient-primary hover:opacity-90"
+                    onClick={() => generatePDFReport('general', 'mensuel')}
+                    disabled={isLoading}
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Générer PDF
                   </Button>
-                  <Button variant="outline">
+                  <Button 
+                    variant="outline"
+                    onClick={() => generateExcelReport('general', 'mensuel')}
+                    disabled={isLoading}
+                  >
                     <FileText className="mr-2 h-4 w-4" />
                     Générer Excel
                   </Button>

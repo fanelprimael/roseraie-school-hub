@@ -235,7 +235,13 @@ const Grades = () => {
                     </SelectContent>
                   </Select>
 
-                  <Button className="bg-gradient-primary hover:opacity-90">
+                  <Button 
+                    className="bg-gradient-primary hover:opacity-90"
+                    onClick={() => {
+                      // TODO: Implémenter génération PDF des bulletins
+                      console.log('Génération PDF des bulletins');
+                    }}
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Générer PDF
                   </Button>

@@ -103,11 +103,27 @@ const Classes = () => {
                   </div>
 
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => {
+                        // TODO: Implémenter la modification de classe
+                        console.log(`Modifier classe ${classItem.id}`);
+                      }}
+                    >
                       <Edit className="mr-2 h-4 w-4" />
                       Modifier
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => {
+                        // TODO: Naviguer vers la liste des élèves de la classe
+                        console.log(`Voir élèves de la classe ${classItem.id}`);
+                      }}
+                    >
                       <Users className="mr-2 h-4 w-4" />
                       Élèves
                     </Button>

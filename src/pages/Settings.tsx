@@ -217,7 +217,15 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <Button className="w-full" variant="outline">
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={() => {
+                    // TODO: Implémenter ajout utilisateur
+                    console.log('Ajouter un utilisateur');
+                  }}
+                  disabled={isLoading}
+                >
                   <Users className="mr-2 h-4 w-4" />
                   Ajouter un Utilisateur
                 </Button>
@@ -257,13 +265,33 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="ancien-mdp">Ancien mot de passe</Label>
+                  <Input 
+                    id="ancien-mdp" 
+                    type="password" 
+                    value={passwordData.oldPassword}
+                    onChange={(e) => setPasswordData({...passwordData, oldPassword: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="mot-de-passe">Nouveau mot de passe</Label>
-                  <Input id="mot-de-passe" type="password" />
+                  <Input 
+                    id="mot-de-passe" 
+                    type="password" 
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmer-mdp">Confirmer le mot de passe</Label>
-                  <Input id="confirmer-mdp" type="password" />
+                  <Input 
+                    id="confirmer-mdp" 
+                    type="password" 
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                  />
                 </div>
 
                  <Button 
