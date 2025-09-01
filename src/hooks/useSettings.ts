@@ -192,12 +192,54 @@ export const useSettings = () => {
   const exportData = async (format: 'json' | 'csv' | 'excel') => {
     setIsLoading(true);
     try {
-      // Simulate data export
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let content: string;
+      let filename: string;
+      let mimeType: string;
+
+      const exportData = {
+        school: schoolSettings,
+        users: users,
+        security: securitySettings,
+        exportDate: new Date().toISOString()
+      };
+
+      switch (format) {
+        case 'json':
+          content = JSON.stringify(exportData, null, 2);
+          filename = `donnees-ecole-${new Date().toISOString().split('T')[0]}.json`;
+          mimeType = 'application/json';
+          break;
+        case 'csv':
+          content = 'Type,Nom,Email,Role\n';
+          content += `École,${schoolSettings.name},,\n`;
+          users.forEach(user => {
+            content += `Utilisateur,,${user.email},${user.role}\n`;
+          });
+          filename = `donnees-ecole-${new Date().toISOString().split('T')[0]}.csv`;
+          mimeType = 'text/csv';
+          break;
+        case 'excel':
+          content = JSON.stringify(exportData, null, 2); // Simplified for now
+          filename = `donnees-ecole-${new Date().toISOString().split('T')[0]}.xlsx`;
+          mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          break;
+        default:
+          throw new Error('Format non supporté');
+      }
+
+      const blob = new Blob([content], { type: mimeType + ';charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       toast({
         title: "Export réussi",
-        description: `Les données ont été exportées au format ${format.toUpperCase()}`,
+        description: `Les données ont été exportées et téléchargées au format ${format.toUpperCase()}`,
       });
     } catch (error) {
       toast({

@@ -4,14 +4,28 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { School, Users, Edit } from "lucide-react";
 import { ClassForm } from "@/components/forms/ClassForm";
+import { EditClassForm } from "@/components/forms/EditClassForm";
 import { useClasses } from "@/hooks/useClasses";
 import { useStudents } from "@/hooks/useStudents";
+import { useState } from "react";
 
 const Classes = () => {
   const { classes } = useClasses();
   const { students } = useStudents();
+  const [editingClass, setEditingClass] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   
   const totalStudents = students.length;
+
+  const handleEditClass = (classItem: any) => {
+    setEditingClass(classItem);
+    setEditDialogOpen(true);
+  };
+
+  const handleViewStudents = (classItem: any) => {
+    // Navigate to students page with class filter
+    window.location.href = `/students?class=${encodeURIComponent(classItem.name)}`;
+  };
 
   return (
     <Layout>
@@ -107,10 +121,7 @@ const Classes = () => {
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => {
-                        // TODO: Implémenter la modification de classe
-                        console.log(`Modifier classe ${classItem.id}`);
-                      }}
+                      onClick={() => handleEditClass(classItem)}
                     >
                       <Edit className="mr-2 h-4 w-4" />
                       Modifier
@@ -119,10 +130,7 @@ const Classes = () => {
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => {
-                        // TODO: Naviguer vers la liste des élèves de la classe
-                        console.log(`Voir élèves de la classe ${classItem.id}`);
-                      }}
+                      onClick={() => handleViewStudents(classItem)}
                     >
                       <Users className="mr-2 h-4 w-4" />
                       Élèves
@@ -133,6 +141,13 @@ const Classes = () => {
             ))
           )}
         </div>
+
+        {/* Edit Class Dialog */}
+        <EditClassForm 
+          classData={editingClass}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
       </div>
     </Layout>
   );

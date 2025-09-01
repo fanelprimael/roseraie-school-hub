@@ -321,15 +321,30 @@ const Reports = () => {
                 <div className="pt-4 border-t">
                   <h4 className="font-medium mb-3">Rapports Prédéfinis</h4>
                   <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start"
+                      onClick={exportStudentsList}
+                      disabled={isLoading}
+                    >
                       <Calendar className="mr-2 h-4 w-4" />
                       Liste des élèves par classe
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start"
+                      onClick={exportOverduePayments}
+                      disabled={isLoading}
+                    >
                       <Users className="mr-2 h-4 w-4" />
                       Élèves en retard de paiement
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start"
+                      onClick={exportGlobalReport}
+                      disabled={isLoading}
+                    >
                       <BarChart3 className="mr-2 h-4 w-4" />
                       Bulletin de notes global
                     </Button>

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,13 +8,22 @@ import { useForm } from "react-hook-form";
 import { useClasses } from "@/hooks/useClasses";
 import { useTeachers } from "@/hooks/useTeachers";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
 
 interface ClassFormData {
   name: string;
   level: string;
   teacher: string;
   capacity: number;
+}
+
+interface Class {
+  id: string;
+  name: string;
+  level: string;
+  teacher: string;
+  capacity: number;
+  studentCount: number;
+  createdAt: string;
 }
 
 const levels = [
@@ -28,9 +37,14 @@ const levels = [
   "CM2"
 ];
 
-export const ClassForm = () => {
-  const [open, setOpen] = useState(false);
-  const { addClass, isLoading } = useClasses();
+interface EditClassFormProps {
+  classData: Class | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const EditClassForm = ({ classData, open, onOpenChange }: EditClassFormProps) => {
+  const { updateClass, isLoading } = useClasses();
   const { teachers } = useTeachers();
   const { toast } = useToast();
   
@@ -43,35 +57,41 @@ export const ClassForm = () => {
     },
   });
 
-  const onSubmit = async (data: ClassFormData) => {
-    try {
-      await addClass(data);
-      toast({
-        title: "Classe ajoutée",
-        description: "La classe a été ajoutée avec succès.",
+  useEffect(() => {
+    if (classData) {
+      form.reset({
+        name: classData.name,
+        level: classData.level,
+        teacher: classData.teacher,
+        capacity: classData.capacity,
       });
-      setOpen(false);
-      form.reset();
+    }
+  }, [classData, form]);
+
+  const onSubmit = async (data: ClassFormData) => {
+    if (!classData) return;
+    
+    try {
+      await updateClass(classData.id, data);
+      toast({
+        title: "Classe modifiée",
+        description: "La classe a été modifiée avec succès.",
+      });
+      onOpenChange(false);
     } catch (error) {
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'ajout de la classe.",
+        description: "Une erreur est survenue lors de la modification de la classe.",
         variant: "destructive",
       });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle Classe
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ajouter une nouvelle classe</DialogTitle>
+          <DialogTitle>Modifier la classe</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -95,7 +115,7 @@ export const ClassForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Niveau</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un niveau" />
@@ -120,7 +140,7 @@ export const ClassForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Enseignant principal</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un enseignant" />
@@ -159,11 +179,11 @@ export const ClassForm = () => {
             />
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Ajout..." : "Ajouter la classe"}
+                {isLoading ? "Modification..." : "Modifier la classe"}
               </Button>
             </div>
           </form>

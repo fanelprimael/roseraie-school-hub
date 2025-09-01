@@ -19,6 +19,7 @@ import {
   Save
 } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
+import { UserForm } from "@/components/forms/UserForm";
 import { useState } from "react";
 
 const Settings = () => {
@@ -217,18 +218,7 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <Button 
-                  className="w-full" 
-                  variant="outline"
-                  onClick={() => {
-                    // TODO: Implémenter ajout utilisateur
-                    console.log('Ajouter un utilisateur');
-                  }}
-                  disabled={isLoading}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Ajouter un Utilisateur
-                </Button>
+                <UserForm />
 
                 <div className="pt-4 border-t">
                   <h4 className="font-medium mb-3">Permissions</h4>
