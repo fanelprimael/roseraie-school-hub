@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { useClasses } from "@/hooks/useClasses";
+import { useClassesContext } from "@/contexts/ClassesContext";
 import { useTeachers } from "@/hooks/useTeachers";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
@@ -30,7 +30,7 @@ const levels = [
 
 export const ClassForm = () => {
   const [open, setOpen] = useState(false);
-  const { addClass, isLoading } = useClasses();
+  const { addClass, isLoading } = useClassesContext();
   const { teachers } = useTeachers();
   const { toast } = useToast();
   

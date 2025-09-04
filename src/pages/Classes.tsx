@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { School, Users, Edit } from "lucide-react";
 import { ClassForm } from "@/components/forms/ClassForm";
 import { EditClassForm } from "@/components/forms/EditClassForm";
-import { useClasses } from "@/hooks/useClasses";
-import { useStudents } from "@/hooks/useStudents";
+import { useClassesContext } from "@/contexts/ClassesContext";
+import { useStudentsContext } from "@/contexts/StudentsContext";
 import { useState } from "react";
 
 const Classes = () => {
-  const { classes } = useClasses();
-  const { students } = useStudents();
+  const { classes, deleteClass } = useClassesContext();
+  const { students } = useStudentsContext();
   const [editingClass, setEditingClass] = useState<any>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
-import { useTeachers } from "@/hooks/useTeachers";
+import { useTeachersContext } from "@/contexts/TeachersContext";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
 
@@ -21,7 +21,7 @@ interface TeacherFormData {
 
 export const TeacherForm = () => {
   const [open, setOpen] = useState(false);
-  const { addTeacher, isLoading } = useTeachers();
+  const { addTeacher, isLoading } = useTeachersContext();
   const { toast } = useToast();
   
   const form = useForm<TeacherFormData>({

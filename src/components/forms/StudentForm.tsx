@@ -5,8 +5,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { useStudents } from "@/hooks/useStudents";
-import { useClasses } from "@/hooks/useClasses";
+import { useStudentsContext } from "@/contexts/StudentsContext";
+import { useClassesContext } from "@/contexts/ClassesContext";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
 
@@ -24,8 +24,8 @@ interface StudentFormData {
 
 export const StudentForm = () => {
   const [open, setOpen] = useState(false);
-  const { addStudent, isLoading } = useStudents();
-  const { classes } = useClasses();
+  const { addStudent, isLoading } = useStudentsContext();
+  const { classes } = useClassesContext();
   const { toast } = useToast();
   
   const form = useForm<StudentFormData>({

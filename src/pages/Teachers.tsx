@@ -6,11 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Search, Edit, School } from "lucide-react";
 import { TeacherForm } from "@/components/forms/TeacherForm";
-import { useTeachers } from "@/hooks/useTeachers";
+import { useTeachersContext } from "@/contexts/TeachersContext";
 import { useState } from "react";
 
 const Teachers = () => {
-  const { teachers } = useTeachers();
+  const { teachers } = useTeachersContext();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredTeachers = teachers.filter(teacher => 
