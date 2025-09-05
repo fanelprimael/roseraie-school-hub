@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Class {
   id: string;
@@ -11,28 +12,69 @@ export interface Class {
 }
 
 export const useClasses = () => {
-  const [classes, setClasses] = useState<Class[]>([
-    { id: '1', name: 'Maternelle 1', level: 'Maternelle', teacher: '', capacity: 25, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '2', name: 'Maternelle 2', level: 'Maternelle', teacher: '', capacity: 25, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '3', name: 'CI', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '4', name: 'CP', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '5', name: 'CE1', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '6', name: 'CE2', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '7', name: 'CM1', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
-    { id: '8', name: 'CM2', level: 'Primaire', teacher: '', capacity: 30, studentCount: 0, createdAt: new Date().toISOString() },
-  ]);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Charger les classes au démarrage
+  useEffect(() => {
+    loadClasses();
+  }, []);
+
+  const loadClasses = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('classes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedClasses: Class[] = data.map(cls => ({
+        id: cls.id,
+        name: cls.name,
+        level: cls.level,
+        teacher: cls.teacher,
+        capacity: cls.capacity,
+        studentCount: cls.student_count,
+        createdAt: cls.created_at,
+      }));
+
+      setClasses(formattedClasses);
+    } catch (error) {
+      console.error('Erreur lors du chargement des classes:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const addClass = async (classData: Omit<Class, 'id' | 'createdAt' | 'studentCount'>) => {
     setIsLoading(true);
     try {
+      const { data, error } = await supabase
+        .from('classes')
+        .insert({
+          name: classData.name,
+          level: classData.level,
+          teacher: classData.teacher,
+          capacity: classData.capacity,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
       const newClass: Class = {
-        ...classData,
-        id: crypto.randomUUID(),
-        studentCount: 0,
-        createdAt: new Date().toISOString(),
+        id: data.id,
+        name: data.name,
+        level: data.level,
+        teacher: data.teacher,
+        capacity: data.capacity,
+        studentCount: data.student_count,
+        createdAt: data.created_at,
       };
-      setClasses(prev => [...prev, newClass]);
+
+      setClasses(prev => [newClass, ...prev]);
       return newClass;
     } finally {
       setIsLoading(false);
@@ -42,6 +84,20 @@ export const useClasses = () => {
   const updateClass = async (id: string, updates: Partial<Class>) => {
     setIsLoading(true);
     try {
+      const updateData: any = {};
+      if (updates.name) updateData.name = updates.name;
+      if (updates.level) updateData.level = updates.level;
+      if (updates.teacher) updateData.teacher = updates.teacher;
+      if (updates.capacity !== undefined) updateData.capacity = updates.capacity;
+      if (updates.studentCount !== undefined) updateData.student_count = updates.studentCount;
+
+      const { error } = await supabase
+        .from('classes')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
       setClasses(prev => 
         prev.map(cls => 
           cls.id === id ? { ...cls, ...updates } : cls
@@ -55,6 +111,13 @@ export const useClasses = () => {
   const deleteClass = async (id: string) => {
     setIsLoading(true);
     try {
+      const { error } = await supabase
+        .from('classes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
       setClasses(prev => prev.filter(cls => cls.id !== id));
     } finally {
       setIsLoading(false);

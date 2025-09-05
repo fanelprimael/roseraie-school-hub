@@ -14,7 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      classes: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          level: string
+          name: string
+          student_count: number
+          teacher: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          level: string
+          name: string
+          student_count?: number
+          teacher: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          level?: string
+          name?: string
+          student_count?: number
+          teacher?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          address: string
+          class: string
+          created_at: string
+          date_of_birth: string
+          first_name: string
+          id: string
+          last_name: string
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          class: string
+          created_at?: string
+          date_of_birth: string
+          first_name: string
+          id?: string
+          last_name: string
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          class?: string
+          created_at?: string
+          date_of_birth?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          parent_email?: string
+          parent_name?: string
+          parent_phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          category: string
+          coefficient: number
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          coefficient?: number
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          coefficient?: number
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      teachers: {
+        Row: {
+          classes: string[]
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          status: string
+          subjects: string[]
+          updated_at: string
+        }
+        Insert: {
+          classes?: string[]
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone: string
+          status?: string
+          subjects?: string[]
+          updated_at?: string
+        }
+        Update: {
+          classes?: string[]
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          status?: string
+          subjects?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
