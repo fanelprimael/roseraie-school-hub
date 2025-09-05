@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Student {
   id: string;
@@ -18,13 +19,9 @@ export interface Student {
 export const useStudents = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  // Charger les étudiants au démarrage
-  useEffect(() => {
-    loadStudents();
-  }, []);
-
-  const loadStudents = async () => {
+  const fetchStudents = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -34,7 +31,7 @@ export const useStudents = () => {
 
       if (error) throw error;
 
-      const formattedStudents: Student[] = data.map(student => ({
+      const formattedData = data?.map(student => ({
         id: student.id,
         firstName: student.first_name,
         lastName: student.last_name,
@@ -46,15 +43,24 @@ export const useStudents = () => {
         parentEmail: student.parent_email,
         address: student.address,
         createdAt: student.created_at,
-      }));
+      })) || [];
 
-      setStudents(formattedStudents);
+      setStudents(formattedData);
     } catch (error) {
-      console.error('Erreur lors du chargement des étudiants:', error);
+      console.error('Error fetching students:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les étudiants",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   const addStudent = async (studentData: Omit<Student, 'id' | 'createdAt'>) => {
     setIsLoading(true);
@@ -92,7 +98,19 @@ export const useStudents = () => {
       };
 
       setStudents(prev => [newStudent, ...prev]);
+      toast({
+        title: "Succès",
+        description: "Étudiant ajouté avec succès",
+      });
       return newStudent;
+    } catch (error) {
+      console.error('Error adding student:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter l'étudiant",
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -124,6 +142,18 @@ export const useStudents = () => {
           student.id === id ? { ...student, ...updates } : student
         )
       );
+
+      toast({
+        title: "Succès",
+        description: "Étudiant modifié avec succès",
+      });
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier l'étudiant",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -140,6 +170,17 @@ export const useStudents = () => {
       if (error) throw error;
 
       setStudents(prev => prev.filter(student => student.id !== id));
+      toast({
+        title: "Succès",
+        description: "Étudiant supprimé avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'étudiant",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -151,5 +192,6 @@ export const useStudents = () => {
     addStudent,
     updateStudent,
     deleteStudent,
+    fetchStudents,
   };
 };

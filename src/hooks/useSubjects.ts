@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Subject {
   id: string;
@@ -12,13 +13,9 @@ export interface Subject {
 export const useSubjects = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  // Charger les matières au démarrage
-  useEffect(() => {
-    loadSubjects();
-  }, []);
-
-  const loadSubjects = async () => {
+  const fetchSubjects = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -28,21 +25,30 @@ export const useSubjects = () => {
 
       if (error) throw error;
 
-      const formattedSubjects: Subject[] = data.map(subject => ({
+      const formattedData = data?.map(subject => ({
         id: subject.id,
         name: subject.name,
         coefficient: subject.coefficient,
         category: subject.category as 'core' | 'optional' | 'extra',
         createdAt: subject.created_at,
-      }));
+      })) || [];
 
-      setSubjects(formattedSubjects);
+      setSubjects(formattedData);
     } catch (error) {
-      console.error('Erreur lors du chargement des matières:', error);
+      console.error('Error fetching subjects:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les matières",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
 
   const addSubject = async (subjectData: Omit<Subject, 'id' | 'createdAt'>) => {
     setIsLoading(true);
@@ -68,7 +74,19 @@ export const useSubjects = () => {
       };
 
       setSubjects(prev => [newSubject, ...prev]);
+      toast({
+        title: "Succès",
+        description: "Matière ajoutée avec succès",
+      });
       return newSubject;
+    } catch (error) {
+      console.error('Error adding subject:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la matière",
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -94,6 +112,18 @@ export const useSubjects = () => {
           subject.id === id ? { ...subject, ...updates } : subject
         )
       );
+
+      toast({
+        title: "Succès",
+        description: "Matière modifiée avec succès",
+      });
+    } catch (error) {
+      console.error('Error updating subject:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier la matière",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +140,17 @@ export const useSubjects = () => {
       if (error) throw error;
 
       setSubjects(prev => prev.filter(subject => subject.id !== id));
+      toast({
+        title: "Succès",
+        description: "Matière supprimée avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting subject:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la matière",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -121,5 +162,6 @@ export const useSubjects = () => {
     addSubject,
     updateSubject,
     deleteSubject,
+    fetchSubjects,
   };
 };

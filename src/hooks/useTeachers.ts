@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Teacher {
   id: string;
@@ -16,13 +17,9 @@ export interface Teacher {
 export const useTeachers = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  // Charger les enseignants au démarrage
-  useEffect(() => {
-    loadTeachers();
-  }, []);
-
-  const loadTeachers = async () => {
+  const fetchTeachers = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -32,7 +29,7 @@ export const useTeachers = () => {
 
       if (error) throw error;
 
-      const formattedTeachers: Teacher[] = data.map(teacher => ({
+      const formattedData = data?.map(teacher => ({
         id: teacher.id,
         firstName: teacher.first_name,
         lastName: teacher.last_name,
@@ -42,15 +39,24 @@ export const useTeachers = () => {
         classes: teacher.classes || [],
         status: teacher.status as 'active' | 'inactive',
         createdAt: teacher.created_at,
-      }));
+      })) || [];
 
-      setTeachers(formattedTeachers);
+      setTeachers(formattedData);
     } catch (error) {
-      console.error('Erreur lors du chargement des enseignants:', error);
+      console.error('Error fetching teachers:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les enseignants",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
 
   const addTeacher = async (teacherData: Omit<Teacher, 'id' | 'createdAt' | 'subjects'>) => {
     setIsLoading(true);
@@ -62,7 +68,7 @@ export const useTeachers = () => {
           last_name: teacherData.lastName,
           email: teacherData.email,
           phone: teacherData.phone,
-          classes: teacherData.classes,
+          classes: teacherData.classes || [],
           status: teacherData.status,
         })
         .select()
@@ -83,7 +89,19 @@ export const useTeachers = () => {
       };
 
       setTeachers(prev => [newTeacher, ...prev]);
+      toast({
+        title: "Succès",
+        description: "Enseignant ajouté avec succès",
+      });
       return newTeacher;
+    } catch (error) {
+      console.error('Error adding teacher:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter l'enseignant",
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +131,18 @@ export const useTeachers = () => {
           teacher.id === id ? { ...teacher, ...updates } : teacher
         )
       );
+
+      toast({
+        title: "Succès",
+        description: "Enseignant modifié avec succès",
+      });
+    } catch (error) {
+      console.error('Error updating teacher:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier l'enseignant",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -129,6 +159,17 @@ export const useTeachers = () => {
       if (error) throw error;
 
       setTeachers(prev => prev.filter(teacher => teacher.id !== id));
+      toast({
+        title: "Succès",
+        description: "Enseignant supprimé avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting teacher:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'enseignant",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -140,5 +181,6 @@ export const useTeachers = () => {
     addTeacher,
     updateTeacher,
     deleteTeacher,
+    fetchTeachers,
   };
 };
