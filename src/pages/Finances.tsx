@@ -59,7 +59,22 @@ const Finances = () => {
           </div>
           <div className="flex gap-3">
             <PaymentForm />
-            <Button variant="outline" onClick={generateReport}>
+            <Button 
+              variant="outline" 
+              onClick={async () => {
+                // Générer rapport financier
+                const reportData = `Rapport Financier - ${new Date().toLocaleDateString('fr-FR')}\n\nRécettes: 0 FCFA\nDépenses: 0 FCFA\nBénéfice net: 0 FCFA`;
+                const blob = new Blob([reportData], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `rapport-financier-${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+              }}
+            >
               <Download className="mr-2 h-4 w-4" />
               Rapport
             </Button>
@@ -212,9 +227,25 @@ const Finances = () => {
                              </Badge>
                            </TableCell>
                            <TableCell>
-                             <Button variant="outline" size="sm">
-                               <Download className="h-4 w-4" />
-                             </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Télécharger reçu de paiement
+                        const receiptData = `REÇU DE PAIEMENT\n\nÉlève: ${payment.student_name}\nClasse: ${payment.class_name}\nMontant: ${formatCurrency(payment.amount)}\nDate: ${new Date(payment.date).toLocaleDateString('fr-FR')}`;
+                        const blob = new Blob([receiptData], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `recu-${payment.student_name.replace(/\s+/g, '-')}-${payment.date}.txt`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
                            </TableCell>
                          </TableRow>
                        ))

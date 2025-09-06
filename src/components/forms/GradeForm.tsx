@@ -6,52 +6,57 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { useSubjects } from "@/hooks/useSubjects";
-import { useClasses } from "@/hooks/useClasses";
 import { useStudents } from "@/hooks/useStudents";
-import { useToast } from "@/hooks/use-toast";
+import { useGrades } from "@/hooks/useGrades";
 import { PlusCircle } from "lucide-react";
 
 interface GradeFormData {
   studentId: string;
   subjectId: string;
-  evaluation: string;
   grade: number;
-  evaluationType: string;
+  evaluationType: 'DS' | 'Interrogation' | 'Examen';
+  date: string;
 }
 
 export const GradeForm = () => {
   const [open, setOpen] = useState(false);
   const { subjects } = useSubjects();
-  const { classes } = useClasses();
   const { students } = useStudents();
-  const { toast } = useToast();
+  const { addGrade, isLoading } = useGrades();
   
   const form = useForm<GradeFormData>({
     defaultValues: {
       studentId: '',
       subjectId: '',
-      evaluation: '',
       grade: 0,
-      evaluationType: '',
+      evaluationType: 'DS',
+      date: new Date().toISOString().split('T')[0],
     },
   });
 
   const onSubmit = async (data: GradeFormData) => {
     try {
-      // Ici on ajouterait la logique pour sauvegarder la note
-      console.log('Grade data:', data);
-      toast({
-        title: "Note ajoutée",
-        description: "La note a été enregistrée avec succès.",
+      const student = students.find(s => s.id === data.studentId);
+      const subject = subjects.find(s => s.id === data.subjectId);
+      
+      if (!student || !subject) return;
+
+      await addGrade({
+        student_id: student.id,
+        student_name: `${student.firstName} ${student.lastName}`,
+        subject_id: subject.id,
+        subject_name: subject.name,
+        class_name: student.class,
+        grade: data.grade,
+        coefficient: subject.coefficient,
+        type: data.evaluationType,
+        date: data.date,
       });
+
       setOpen(false);
       form.reset();
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'enregistrement.",
-        variant: "destructive",
-      });
+      console.error('Error adding grade:', error);
     }
   };
 
@@ -122,24 +127,16 @@ export const GradeForm = () => {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="evaluation"
+                name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Évaluation</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Évaluation" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="E1">1ère Évaluation</SelectItem>
-                        <SelectItem value="E2">2ème Évaluation</SelectItem>
-                        <SelectItem value="E3">3ème Évaluation</SelectItem>
-                        <SelectItem value="E4">4ème Évaluation</SelectItem>
-                        <SelectItem value="E5">5ème Évaluation</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Date</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -159,7 +156,7 @@ export const GradeForm = () => {
                         step="0.5"
                         placeholder="Note" 
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -181,10 +178,9 @@ export const GradeForm = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="controle">Contrôle</SelectItem>
-                      <SelectItem value="devoir">Devoir</SelectItem>
-                      <SelectItem value="examen">Examen</SelectItem>
-                      <SelectItem value="oral">Oral</SelectItem>
+                      <SelectItem value="DS">Devoir Surveillé</SelectItem>
+                      <SelectItem value="Interrogation">Interrogation</SelectItem>
+                      <SelectItem value="Examen">Examen</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -196,8 +192,8 @@ export const GradeForm = () => {
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Annuler
               </Button>
-              <Button type="submit">
-                Enregistrer la note
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Enregistrement..." : "Enregistrer la note"}
               </Button>
             </div>
           </form>

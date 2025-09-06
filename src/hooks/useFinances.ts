@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
 interface Payment {
@@ -30,15 +31,7 @@ interface FinancialStats {
 
 export const useFinances = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([
-    { id: '1', name: 'Frais de scolarité 1', amount: 15000 },
-    { id: '2', name: 'Frais de scolarité 2', amount: 15000 },
-    { id: '3', name: 'Frais de scolarité 3', amount: 15000 },
-    { id: '4', name: 'Photocopie et anglais', amount: 5000 },
-    { id: '5', name: 'Uniforme', amount: 8000 },
-    { id: '6', name: 'Cantine', amount: 12000 },
-    { id: '7', name: 'Activité', amount: 3000 }
-  ]);
+  const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
   const [stats, setStats] = useState<FinancialStats>({
     monthly_income: 0,
     monthly_expenses: 0,
@@ -49,11 +42,63 @@ export const useFinances = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Simulate loading data
   useEffect(() => {
-    // Données simulées - remplacer par API Supabase
+    fetchPayments();
+    fetchPaymentTypes();
+  }, []);
+
+  useEffect(() => {
     calculateStats();
   }, [payments]);
+
+  const fetchPayments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedPayments: Payment[] = data?.map(payment => ({
+        id: payment.id,
+        student_id: payment.student_id,
+        student_name: payment.student_name,
+        class_name: payment.class_name,
+        type: payment.type,
+        amount: payment.amount,
+        status: payment.status as 'Payé' | 'En attente' | 'En retard',
+        date: payment.date,
+        due_date: payment.due_date,
+      })) || [];
+
+      setPayments(formattedPayments);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+    }
+  };
+
+  const fetchPaymentTypes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payment_types')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedTypes: PaymentType[] = data?.map(type => ({
+        id: type.id,
+        name: type.name,
+        amount: type.amount,
+        description: type.description,
+      })) || [];
+
+      setPaymentTypes(formattedTypes);
+    } catch (error) {
+      console.error('Error fetching payment types:', error);
+    }
+  };
 
   const calculateStats = () => {
     const currentMonth = new Date().getMonth();
@@ -90,13 +135,35 @@ export const useFinances = () => {
   }) => {
     setIsLoading(true);
     try {
+      const { data, error } = await supabase
+        .from('payments')
+        .insert({
+          student_id: paymentData.student_id,
+          student_name: paymentData.student_name,
+          class_name: paymentData.class_name,
+          type: paymentData.type,
+          amount: paymentData.amount,
+          date: paymentData.date,
+          status: 'Payé'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
       const newPayment: Payment = {
-        id: Date.now().toString(),
-        ...paymentData,
-        status: 'Payé'
+        id: data.id,
+        student_id: data.student_id,
+        student_name: data.student_name,
+        class_name: data.class_name,
+        type: data.type,
+        amount: data.amount,
+        status: data.status as 'Payé' | 'En attente' | 'En retard',
+        date: data.date,
+        due_date: data.due_date,
       };
 
-      setPayments(prev => [...prev, newPayment]);
+      setPayments(prev => [newPayment, ...prev]);
       
       toast({
         title: "Paiement enregistré",
@@ -119,6 +186,13 @@ export const useFinances = () => {
   const updatePaymentStatus = async (paymentId: string, status: Payment['status']) => {
     setIsLoading(true);
     try {
+      const { error } = await supabase
+        .from('payments')
+        .update({ status })
+        .eq('id', paymentId);
+
+      if (error) throw error;
+
       setPayments(prev => 
         prev.map(p => p.id === paymentId ? { ...p, status } : p)
       );

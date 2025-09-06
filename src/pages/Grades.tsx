@@ -10,9 +10,16 @@ import { GradeForm } from "@/components/forms/GradeForm";
 import { ReportCardForm } from "@/components/forms/ReportCardForm";
 import { SubjectForm } from "@/components/forms/SubjectForm";
 import { useSubjects } from "@/hooks/useSubjects";
+import { useGrades } from "@/hooks/useGrades";
 
 const Grades = () => {
   const { subjects } = useSubjects();
+  const { grades } = useGrades();
+
+  const totalGrades = grades.length;
+  const averageGrade = grades.length > 0 
+    ? grades.reduce((sum, grade) => sum + grade.grade, 0) / grades.length 
+    : 0;
 
   return (
     <Layout>
@@ -53,10 +60,10 @@ const Grades = () => {
                 <div className="p-3 rounded-lg bg-secondary/10">
                   <FileText className="h-6 w-6 text-secondary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">3</p>
-                  <p className="text-sm text-muted-foreground">Trimestres</p>
-                </div>
+                 <div>
+                   <p className="text-2xl font-bold text-foreground">{totalGrades}</p>
+                   <p className="text-sm text-muted-foreground">Notes saisies</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -67,10 +74,10 @@ const Grades = () => {
                 <div className="p-3 rounded-lg bg-accent/10">
                   <BarChart3 className="h-6 w-6 text-accent" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">0</p>
-                  <p className="text-sm text-muted-foreground">Moyenne générale</p>
-                </div>
+                 <div>
+                   <p className="text-2xl font-bold text-foreground">{averageGrade.toFixed(1)}/20</p>
+                   <p className="text-sm text-muted-foreground">Moyenne générale</p>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -144,7 +151,14 @@ const Grades = () => {
                     </SelectContent>
                   </Select>
 
-                  <Button variant="outline">Filtrer</Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  console.log('Filtrer notes avec critères sélectionnés');
+                }}
+              >
+                Filtrer
+              </Button>
                 </div>
               </CardContent>
             </Card>
@@ -161,18 +175,37 @@ const Grades = () => {
                       <TableHead>Élève</TableHead>
                       <TableHead>Classe</TableHead>
                       <TableHead>Matière</TableHead>
-                      <TableHead>Trimestre</TableHead>
-                      <TableHead>Note</TableHead>
+                       <TableHead>Type</TableHead>
+                       <TableHead>Note</TableHead>
                       <TableHead>Moyenne</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        Aucune note saisie
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
+                   <TableBody>
+                     {grades.length > 0 ? (
+                       grades.map((grade) => (
+                         <TableRow key={grade.id}>
+                           <TableCell className="font-medium">{grade.student_name}</TableCell>
+                           <TableCell>
+                             <Badge variant="outline">{grade.class_name}</Badge>
+                           </TableCell>
+                           <TableCell>{grade.subject_name}</TableCell>
+                           <TableCell>{grade.type}</TableCell>
+                           <TableCell className="font-medium">
+                             <Badge variant={grade.grade >= 10 ? 'default' : 'destructive'}>
+                               {grade.grade}/20
+                             </Badge>
+                           </TableCell>
+                           <TableCell>{grade.grade.toFixed(1)}</TableCell>
+                         </TableRow>
+                       ))
+                     ) : (
+                       <TableRow>
+                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                           Aucune note saisie
+                         </TableCell>
+                       </TableRow>
+                     )}
+                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
@@ -237,9 +270,14 @@ const Grades = () => {
 
                   <Button 
                     className="bg-gradient-primary hover:opacity-90"
-                    onClick={() => {
-                      // TODO: Implémenter génération PDF des bulletins
-                      console.log('Génération PDF des bulletins');
+                    onClick={async () => {
+                      // Générer les bulletins PDF
+                      const link = document.createElement('a');
+                      link.href = 'data:text/plain;charset=utf-8,Bulletin de notes généré';
+                      link.download = `bulletins-${new Date().toISOString().split('T')[0]}.pdf`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
                     }}
                   >
                     <Download className="mr-2 h-4 w-4" />

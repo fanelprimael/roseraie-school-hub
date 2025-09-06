@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
 interface SchoolSettings {
@@ -67,14 +68,73 @@ export const useSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Simulate loading settings
   useEffect(() => {
-    // Load from Supabase or localStorage
+    fetchSchoolSettings();
+    fetchUsers();
   }, []);
+
+  const fetchSchoolSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('school_settings')
+        .select('*')
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data) {
+        setSchoolSettings({
+          name: data.name,
+          type: data.type,
+          address: data.address || '',
+          phone: data.phone || '',
+          email: data.email || '',
+          school_year: data.school_year,
+          currency: data.currency,
+          email_notifications: data.email_notifications,
+          maintenance_mode: data.maintenance_mode,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching school settings:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedUsers: User[] = data?.map(user => ({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions as User['permissions'],
+      })) || [];
+
+      setUsers(formattedUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
   const updateSchoolSettings = async (newSettings: Partial<SchoolSettings>) => {
     setIsLoading(true);
     try {
+      const { error } = await supabase
+        .from('school_settings')
+        .upsert({
+          ...schoolSettings,
+          ...newSettings,
+        });
+
+      if (error) throw error;
+
       setSchoolSettings(prev => ({ ...prev, ...newSettings }));
       
       toast({
@@ -99,9 +159,23 @@ export const useSettings = () => {
   }) => {
     setIsLoading(true);
     try {
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          email: userData.email,
+          role: userData.role,
+          permissions: userData.permissions,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
       const newUser: User = {
-        id: Date.now().toString(),
-        ...userData
+        id: data.id,
+        email: data.email,
+        role: data.role,
+        permissions: data.permissions as User['permissions'],
       };
 
       setUsers(prev => [...prev, newUser]);
@@ -127,6 +201,13 @@ export const useSettings = () => {
   const updateUserPermissions = async (userId: string, permissions: User['permissions']) => {
     setIsLoading(true);
     try {
+      const { error } = await supabase
+        .from('users')
+        .update({ permissions })
+        .eq('id', userId);
+
+      if (error) throw error;
+
       setUsers(prev => 
         prev.map(user => 
           user.id === userId ? { ...user, permissions } : user

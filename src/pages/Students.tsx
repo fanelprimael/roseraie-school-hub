@@ -6,18 +6,33 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Eye, Edit, Trash2 } from "lucide-react";
 import { StudentForm } from "@/components/forms/StudentForm";
+import { StudentDetailsDialog } from "@/components/dialogs/StudentDetailsDialog";
+import { EditStudentDialog } from "@/components/dialogs/EditStudentDialog";
 import { useStudentsContext } from "@/contexts/StudentsContext";
 import { useState } from "react";
 
 const Students = () => {
   const { students, deleteStudent } = useStudentsContext();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const filteredStudents = students.filter(student => 
     student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.class.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleViewStudent = (student: any) => {
+    setSelectedStudent(student);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleEditStudent = (student: any) => {
+    setSelectedStudent(student);
+    setEditDialogOpen(true);
+  };
 
   return (
     <Layout>
@@ -66,6 +81,7 @@ const Students = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>ID</TableHead>
                   <TableHead>Nom & Prénom</TableHead>
                   <TableHead>Classe</TableHead>
                   <TableHead>Statut</TableHead>
@@ -75,13 +91,16 @@ const Students = () => {
               <TableBody>
                 {filteredStudents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-10">
                       {students.length === 0 ? "Aucun élève enregistré pour le moment." : "Aucun élève trouvé."}
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredStudents.map((student) => (
                     <TableRow key={student.id}>
+                      <TableCell className="text-xs text-muted-foreground font-mono">
+                        {student.id.split('-')[0]}...
+                      </TableCell>
                       <TableCell className="font-medium">
                         {student.firstName} {student.lastName}
                       </TableCell>
@@ -93,15 +112,26 @@ const Students = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Voir détails"
+                            onClick={() => handleViewStudent(student)}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Modifier"
+                            onClick={() => handleEditStudent(student)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="sm"
+                            title="Supprimer"
                             onClick={() => deleteStudent(student.id)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -115,6 +145,18 @@ const Students = () => {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Dialogs */}
+        <StudentDetailsDialog
+          student={selectedStudent}
+          open={detailsDialogOpen}
+          onOpenChange={setDetailsDialogOpen}
+        />
+        <EditStudentDialog
+          student={selectedStudent}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
       </div>
     </Layout>
   );

@@ -47,6 +47,165 @@ export type Database = {
         }
         Relationships: []
       }
+      grades: {
+        Row: {
+          class_name: string
+          coefficient: number
+          created_at: string
+          date: string
+          grade: number
+          id: string
+          student_id: string
+          student_name: string
+          subject_id: string | null
+          subject_name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          class_name: string
+          coefficient?: number
+          created_at?: string
+          date: string
+          grade: number
+          id?: string
+          student_id: string
+          student_name: string
+          subject_id?: string | null
+          subject_name: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          class_name?: string
+          coefficient?: number
+          created_at?: string
+          date?: string
+          grade?: number
+          id?: string
+          student_id?: string
+          student_name?: string
+          subject_id?: string | null
+          subject_name?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_types: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          class_name: string
+          created_at: string
+          date: string
+          due_date: string | null
+          id: string
+          status: string
+          student_id: string
+          student_name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          class_name: string
+          created_at?: string
+          date: string
+          due_date?: string | null
+          id?: string
+          status?: string
+          student_id: string
+          student_name: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          class_name?: string
+          created_at?: string
+          date?: string
+          due_date?: string | null
+          id?: string
+          status?: string
+          student_id?: string
+          student_name?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      school_settings: {
+        Row: {
+          address: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          email_notifications: boolean
+          id: string
+          maintenance_mode: boolean
+          name: string
+          phone: string | null
+          school_year: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          email_notifications?: boolean
+          id?: string
+          maintenance_mode?: boolean
+          name: string
+          phone?: string | null
+          school_year: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          email_notifications?: boolean
+          id?: string
+          maintenance_mode?: boolean
+          name?: string
+          phone?: string | null
+          school_year?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string
@@ -154,6 +313,33 @@ export type Database = {
           phone?: string
           status?: string
           subjects?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          permissions: Json
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          permissions?: Json
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          permissions?: Json
+          role?: string
           updated_at?: string
         }
         Relationships: []
